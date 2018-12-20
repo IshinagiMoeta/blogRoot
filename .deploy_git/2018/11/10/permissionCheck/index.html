@@ -6,22 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>常用View与优化 | Mika日常</title>
+  <title>Android权限检查(版本适配) | Mika日常</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="在Android APP中，所有的用户界面元素都是由View和ViewGroup的对象构成的。View是绘制在屏幕上的用户能与之交互的一个对象。而ViewGroup则是一个用于存放其他View（和ViewGroup）对象的布局容器。Android为我们提供了一个View和ViewGroup子类的集合，集合中提供了一些常用的输入控件(比如按钮和文本域)和各种各样的布局模式（比如线性或相对布局）  一">
-<meta name="keywords" content="Android,view">
+  <meta name="description" content="昨天工作中遇到一个需要判断权限来完成的功能，遇到了一些小问题，记录一下。 权限的检查方式是需要区分版本的，在Android 6.0(23)以前使用的是PermissionChecker.checkSelfPermission，而在6.0以后用的直接是ContextCompat.checkSelfPermission。因为在6.0之后有了动态授权，所以不能够直接通过判断AndroidManifest">
+<meta name="keywords" content="Android,权限">
 <meta property="og:type" content="article">
-<meta property="og:title" content="常用View与优化">
-<meta property="og:url" content="http://yoursite.com/2018/10/10/ViewDetailed/index.html">
+<meta property="og:title" content="Android权限检查(版本适配)">
+<meta property="og:url" content="http://yoursite.com/2018/11/10/permissionCheck/index.html">
 <meta property="og:site_name" content="Mika日常">
-<meta property="og:description" content="在Android APP中，所有的用户界面元素都是由View和ViewGroup的对象构成的。View是绘制在屏幕上的用户能与之交互的一个对象。而ViewGroup则是一个用于存放其他View（和ViewGroup）对象的布局容器。Android为我们提供了一个View和ViewGroup子类的集合，集合中提供了一些常用的输入控件(比如按钮和文本域)和各种各样的布局模式（比如线性或相对布局）  一">
+<meta property="og:description" content="昨天工作中遇到一个需要判断权限来完成的功能，遇到了一些小问题，记录一下。 权限的检查方式是需要区分版本的，在Android 6.0(23)以前使用的是PermissionChecker.checkSelfPermission，而在6.0以后用的直接是ContextCompat.checkSelfPermission。因为在6.0之后有了动态授权，所以不能够直接通过判断AndroidManifest">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fw2w2hddttj20d6071dfw.jpg">
-<meta property="og:updated_time" content="2018-10-11T01:58:21.190Z">
+<meta property="og:updated_time" content="2018-11-10T02:13:01.956Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="常用View与优化">
-<meta name="twitter:description" content="在Android APP中，所有的用户界面元素都是由View和ViewGroup的对象构成的。View是绘制在屏幕上的用户能与之交互的一个对象。而ViewGroup则是一个用于存放其他View（和ViewGroup）对象的布局容器。Android为我们提供了一个View和ViewGroup子类的集合，集合中提供了一些常用的输入控件(比如按钮和文本域)和各种各样的布局模式（比如线性或相对布局）  一">
-<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fw2w2hddttj20d6071dfw.jpg">
+<meta name="twitter:title" content="Android权限检查(版本适配)">
+<meta name="twitter:description" content="昨天工作中遇到一个需要判断权限来完成的功能，遇到了一些小问题，记录一下。 权限的检查方式是需要区分版本的，在Android 6.0(23)以前使用的是PermissionChecker.checkSelfPermission，而在6.0以后用的直接是ContextCompat.checkSelfPermission。因为在6.0之后有了动态授权，所以不能够直接通过判断AndroidManifest">
   
     <link rel="alternative" href="/atom.xml" title="Mika日常" type="application/atom+xml">
   
@@ -165,57 +163,30 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-ViewDetailed" class="article article-type-post " itemscope="" itemprop="blogPost">
+            <article id="post-permissionCheck" class="article article-type-post " itemscope="" itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      常用View与优化
+      Android权限检查(版本适配)
     </h1>
   
 
         
-        <a href="/2018/10/10/ViewDetailed/" class="archive-article-date">
-  	<time datetime="2018-10-10T01:42:16.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-10</time>
+        <a href="/2018/11/10/permissionCheck/" class="archive-article-date">
+  	<time datetime="2018-11-10T01:54:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-10</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在Android APP中，所有的用户界面元素都是由View和ViewGroup的对象构成的。View是绘制在屏幕上的用户能与之交互的一个对象。而ViewGroup则是一个用于存放其他View（和ViewGroup）对象的布局容器。Android为我们提供了一个View和ViewGroup子类的集合，集合中提供了一些常用的输入控件(比如按钮和文本域)和各种各样的布局模式（比如线性或相对布局） </p>
-<h1 id="一、Android-View基础知识"><a href="#一、Android-View基础知识" class="headerlink" title="一、Android View基础知识"></a>一、Android View基础知识</h1><p>你的APP的用户界面上的每一个组件都是使用View和ViewGroup对象的层次结构来构成的，如下图所示。<br>每个ViewGroup都是要给看不见的用于组织子View的容器，而它的子View可能是输入控件 或者在UI上绘制了某块区域的小部件。有了层次树，你就可以根据自己的需要，设计简单或者复杂的布局了(布局越简单性能越好)  </p>
-<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fw2w2hddttj20d6071dfw.jpg" alt="">  </p>
-<p>定义你的布局，你可以在代码中实例化View对象并且开始构建你的树，但最容易和最高效的方式来定义你的布局则是使用一个XML文件，用XML来构成布局更加符合人的阅读习惯，而XML类似与HTML 使用XML元素的名称代表一个View。所以<textview>元素会在你的界面中创建一个TextView控件，而一个<linearlayout>则会创建一个LinearLayout的容器。举个例子，一个简单简单的垂直布局上面有一个文本视图和一个按钮，就像下面这样：  </linearlayout></textview></p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">LinearLayout</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_width</span>=<span class="string">"fill_parent"</span> </span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_height</span>=<span class="string">"fill_parent"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:orientation</span>=<span class="string">"vertical"</span> &gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">TextView</span> <span class="attr">android:id</span>=<span class="string">"@+id/text"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">              <span class="attr">android:text</span>=<span class="string">"I am a TextView"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Button</span> <span class="attr">android:id</span>=<span class="string">"@+id/button"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_width</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:layout_height</span>=<span class="string">"wrap_content"</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:text</span>=<span class="string">"I am a Button"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>当你的App加载上述的布局资源的时候，Android会将布局中的每个节点进行实例化成一个个对象，然后你可以为这些定义一些额外的行为，查询对象的状态，或者修改布局。 完整创建UI布局的引导，请参考<a href="http://androiddoc.qiniudn.com/guide/topics/ui/declaring-layout.html" title="XML Layouts" target="_blank" rel="noopener">XML Layouts</a><br>你无需全部用View和ViewGroup对象来创建你的UI布局。Android给我们提供了一些app控件，标准的UI布局，你只需要定义内容。这些UI组件都有其属性介绍的API文档，本文后续也会介绍一些。  </p>
-<h1 id="二、常用布局"><a href="#二、常用布局" class="headerlink" title="二、常用布局"></a>二、常用布局</h1><p>Android中有六大布局,分别是: </p>
-<ul>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-linearlayout.html" target="_blank" rel="noopener">LinearLayout(线性布局)</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-relativelayout.html" target="_blank" rel="noopener">RelativeLayout(相对布局)</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-tablelayout.html" target="_blank" rel="noopener">TableLayout(表格布局) </a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-framelayout.html" target="_blank" rel="noopener">FrameLayout(帧布局)</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-absolutelayout.html" target="_blank" rel="noopener">AbsoluteLayout(绝对布局)</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-gridlayout.html" target="_blank" rel="noopener">GridLayout(网格布局)  </a></li>
-</ul>
-<p>这些布局都是继承与ViewGroup，在开发中使用频率非常高,其中AbsoluteLayout在Android中几乎已经没人使用了，主要原因是AbsoluteLayout几乎无法做到对Android来说很重要的UI适配，不能够自适应各种型号的手机，使用后会导致APP的UI界面很丑。</p>
-<h1 id="三、常用控件"><a href="#三、常用控件" class="headerlink" title="三、常用控件"></a>三、常用控件</h1><p>以下列出在Android开发过程中常用的一些View</p>
-<ul>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-textview.html" target="_blank" rel="noopener">TextView</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-edittext.html" target="_blank" rel="noopener">EditText</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-button-imagebutton.html" target="_blank" rel="noopener">Button与ImageButton</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-imageview.html" target="_blank" rel="noopener">ImageView</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-radiobutton-checkbox.html" target="_blank" rel="noopener">RadioButton和CheckBox</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-togglebutton-switch.html" target="_blank" rel="noopener">ToggleButton和Switch</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-progressbar.html" target="_blank" rel="noopener">ProgressBar</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-seekbar.html" target="_blank" rel="noopener">SeekBar</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-scrollview.html" target="_blank" rel="noopener">ScrollView</a></li>
-<li><a href="http://www.runoob.com/w3cnote/android-tutorial-listview.html" target="_blank" rel="noopener">ListView</a>与<a href="http://www.runoob.com/w3cnote/android-tutorial-adapter.html" target="_blank" rel="noopener">Adapter</a></li>
-<li><a href="https://www.kymjs.com/code/2016/07/10/01/" target="_blank" rel="noopener">RecycleView</a>  </li>
-</ul>
-<p>在这其中，ListView是所有控件中最常使用且对刚入门的新手来说最复杂的用法，各种Adapter的使用以及ListView的优化是一定要掌握的。</p>
+        <p>昨天工作中遇到一个需要判断权限来完成的功能，遇到了一些小问题，记录一下。</p>
+<p>权限的检查方式是需要区分版本的，在Android 6.0(23)以前使用的是<code>PermissionChecker.checkSelfPermission</code>，而在6.0以后用的直接是<code>ContextCompat.checkSelfPermission</code>。<br>因为在6.0之后有了动态授权，所以不能够直接通过判断<code>AndroidManifest.xml</code>里面的权限是否写了来判断，一定要单独做权限检测，以免发生预料之外的BUG。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//权限检测的例子</span></span><br><span class="line"><span class="keyword">int</span> permission = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	PackageInfo info = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">int</span> targetSdkVersion = info.applicationInfo.targetSdkVersion;</span><br><span class="line">	<span class="keyword">if</span> (targetSdkVersion &gt;= <span class="number">23</span>) &#123;</span><br><span class="line">		permission = ContextCompat.checkSelfPermission(ctx, <span class="string">"android.permission.WRITE_EXTERNAL_STORAGE"</span>);</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		permission = PermissionChecker.checkSelfPermission(ctx, <span class="string">"android.permission.WRITE_EXTERNAL_STORAGE"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">	e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (permission != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">	log(<span class="string">"WRITE_EXTERNAL_STORAGE is not allow"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>P.S<br>另有一种邪教说法是，使用try-catch来强行捕获需要权限的动作，在catch里面判断是不是没有权限。这种方式貌似存在版本适配问题，慎用</p>
 
       
 
@@ -264,7 +235,7 @@
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">view</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">权限</a>
         		</li>
       		
 		</ul>
@@ -331,7 +302,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/10/10/ViewDetailed/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/11/10/permissionCheck/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -345,18 +316,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/10/11/AndroidPFeature/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Android P 版本适配
-        
-      </div>
-    </a>
   
-  
-    <a href="/2018/09/30/AndroidStrageWays/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Android四种数据存储方式</div>
+    <a href="/2018/11/07/testFunction/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">软件测试方法</div>
       <i class="icon-circle-right"></i>
     </a>
   

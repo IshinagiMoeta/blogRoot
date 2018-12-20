@@ -164,6 +164,98 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-permissionCheck" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/11/10/permissionCheck/">Android权限检查(版本适配)</a>
+    </h1>
+  
+
+        
+        <a href="/2018/11/10/permissionCheck/" class="archive-article-date">
+  	<time datetime="2018-11-10T01:54:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>昨天工作中遇到一个需要判断权限来完成的功能，遇到了一些小问题，记录一下。</p>
+<p>权限的检查方式是需要区分版本的，在Android 6.0(23)以前使用的是<code>PermissionChecker.checkSelfPermission</code>，而在6.0以后用的直接是<code>ContextCompat.checkSelfPermission</code>。<br>因为在6.0之后有了动态授权，所以不能够直接通过判断<code>AndroidManifest.xml</code>里面的权限是否写了来判断，一定要单独做权限检测，以免发生预料之外的BUG。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//权限检测的例子</span></span><br><span class="line"><span class="keyword">int</span> permission = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">	PackageInfo info = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">int</span> targetSdkVersion = info.applicationInfo.targetSdkVersion;</span><br><span class="line">	<span class="keyword">if</span> (targetSdkVersion &gt;= <span class="number">23</span>) &#123;</span><br><span class="line">		permission = ContextCompat.checkSelfPermission(ctx, <span class="string">"android.permission.WRITE_EXTERNAL_STORAGE"</span>);</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		permission = PermissionChecker.checkSelfPermission(ctx, <span class="string">"android.permission.WRITE_EXTERNAL_STORAGE"</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">	e.printStackTrace();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (permission != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">	log(<span class="string">"WRITE_EXTERNAL_STORAGE is not allow"</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>P.S<br>另有一种邪教说法是，使用try-catch来强行捕获需要权限的动作，在catch里面判断是不是没有权限。这种方式貌似存在版本适配问题，慎用</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">权限</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/11/10/permissionCheck/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-testFunction" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
   <div class="article-inner">
     
@@ -1316,6 +1408,10 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">适配</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">view</a>
               </li>
              
@@ -1328,7 +1424,7 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">适配</a>
+                <a href="javascript:void(0)" class="js-tag color3">权限</a>
               </li>
             
             <div class="clearfix"></div>

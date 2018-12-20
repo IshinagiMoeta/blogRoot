@@ -6,22 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>我的Android学习路径 | Mika日常</title>
+  <title>Android锁屏Activity实现 | Mika日常</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="这篇博客主要是为了总结自己在学习Android过程中得到的经验，同时也算是自己对自己学习的知识的一个系统化梳理，因为博主的技术能力有限，而且时常脑抽，如果这篇文章能够帮到什么人的话，那我要提醒你小心文章中的坑23333。 概要 本篇文章所说的Android开发大部分为应用层所涉及到的知识，关于Android系统全貌，由于博主也没有研究透彻，所以也没法系统性的整理，但是文中可能会出现一些底层知识。本">
-<meta name="keywords" content="Android,总结">
+  <meta name="description" content="之前公司要求在现有的APP上添加一个锁屏功能，一开始听着觉得好像还蛮简单的，真正写的时候写的自己一头包，因为在实现锁屏功能的过程中遇到了很多坑，在此记录下来。 整体逻辑 难点一 锁屏界面实现方式的选择现在大部分锁屏由两种方式实现，第一种是使用悬浮窗的方式，实现一个全屏悬浮窗，来拦截所有点击事件实现的锁屏，另一种就是创建一个Activity，来假装自己是一个锁屏界面。   悬浮窗的实现方式悬浮窗能够">
+<meta name="keywords" content="Android,锁屏">
 <meta property="og:type" content="article">
-<meta property="og:title" content="我的Android学习路径">
-<meta property="og:url" content="http://yoursite.com/2018/09/29/AndroidTotalsink/index.html">
+<meta property="og:title" content="Android锁屏Activity实现">
+<meta property="og:url" content="http://yoursite.com/2018/12/20/screenLockActivity/index.html">
 <meta property="og:site_name" content="Mika日常">
-<meta property="og:description" content="这篇博客主要是为了总结自己在学习Android过程中得到的经验，同时也算是自己对自己学习的知识的一个系统化梳理，因为博主的技术能力有限，而且时常脑抽，如果这篇文章能够帮到什么人的话，那我要提醒你小心文章中的坑23333。 概要 本篇文章所说的Android开发大部分为应用层所涉及到的知识，关于Android系统全貌，由于博主也没有研究透彻，所以也没法系统性的整理，但是文中可能会出现一些底层知识。本">
+<meta property="og:description" content="之前公司要求在现有的APP上添加一个锁屏功能，一开始听着觉得好像还蛮简单的，真正写的时候写的自己一头包，因为在实现锁屏功能的过程中遇到了很多坑，在此记录下来。 整体逻辑 难点一 锁屏界面实现方式的选择现在大部分锁屏由两种方式实现，第一种是使用悬浮窗的方式，实现一个全屏悬浮窗，来拦截所有点击事件实现的锁屏，另一种就是创建一个Activity，来假装自己是一个锁屏界面。   悬浮窗的实现方式悬浮窗能够">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fvqjji5kh4j20k70go131.jpg">
-<meta property="og:updated_time" content="2018-10-11T04:04:05.318Z">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fydau1sh98j21120l8gmq.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fydb0ji2oxj20ix090q4o.jpg">
+<meta property="og:updated_time" content="2018-12-20T08:58:27.417Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="我的Android学习路径">
-<meta name="twitter:description" content="这篇博客主要是为了总结自己在学习Android过程中得到的经验，同时也算是自己对自己学习的知识的一个系统化梳理，因为博主的技术能力有限，而且时常脑抽，如果这篇文章能够帮到什么人的话，那我要提醒你小心文章中的坑23333。 概要 本篇文章所说的Android开发大部分为应用层所涉及到的知识，关于Android系统全貌，由于博主也没有研究透彻，所以也没法系统性的整理，但是文中可能会出现一些底层知识。本">
-<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fvqjji5kh4j20k70go131.jpg">
+<meta name="twitter:title" content="Android锁屏Activity实现">
+<meta name="twitter:description" content="之前公司要求在现有的APP上添加一个锁屏功能，一开始听着觉得好像还蛮简单的，真正写的时候写的自己一头包，因为在实现锁屏功能的过程中遇到了很多坑，在此记录下来。 整体逻辑 难点一 锁屏界面实现方式的选择现在大部分锁屏由两种方式实现，第一种是使用悬浮窗的方式，实现一个全屏悬浮窗，来拦截所有点击事件实现的锁屏，另一种就是创建一个Activity，来假装自己是一个锁屏界面。   悬浮窗的实现方式悬浮窗能够">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fydau1sh98j21120l8gmq.jpg">
   
     <link rel="alternative" href="/atom.xml" title="Mika日常" type="application/atom+xml">
   
@@ -165,82 +166,122 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-AndroidTotalsink" class="article article-type-post " itemscope="" itemprop="blogPost">
+            <article id="post-screenLockActivity" class="article article-type-post " itemscope="" itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      我的Android学习路径
+      Android锁屏Activity实现
     </h1>
   
 
         
-        <a href="/2018/09/29/AndroidTotalsink/" class="archive-article-date">
-  	<time datetime="2018-09-29T07:23:45.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-29</time>
+        <a href="/2018/12/20/screenLockActivity/" class="archive-article-date">
+  	<time datetime="2018-12-20T06:55:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-20</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>这篇博客主要是为了总结自己在学习Android过程中得到的经验，同时也算是自己对自己学习的知识的一个系统化梳理，因为博主的技术能力有限，而且时常脑抽，如果这篇文章能够帮到什么人的话，那我要提醒你小心文章中的坑23333。</p>
-<h1 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h1><hr>
-<p>本篇文章所说的Android开发大部分为<strong>应用层</strong>所涉及到的知识，关于Android系统全貌，由于博主也没有研究透彻，所以也没法系统性的整理，但是文中可能会出现一些底层知识。<br>本文主要涉及的是下图中Application的知识，同时可能会含有一些博主对Framework层的理解。<br><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fvqjji5kh4j20k70go131.jpg" alt=""></p>
-<p>如果有读者对Android全貌有兴趣，所以这里推荐一篇博主认为写的比较详细的说明Android系统的文章<br><a href="http://gityuan.com/android/#syscall--jni" title="http://gityuan.com/android/#syscall--jni" target="_blank" rel="noopener">Android系统开篇</a>  </p>
-<h1 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h1><hr>
-<p>工欲善其事，必先利其器  </p>
-<h2 id="一、硬件"><a href="#一、硬件" class="headerlink" title="一、硬件"></a>一、硬件</h2><ul>
-<li><strong>电脑</strong>：没有推荐<br>博主从入门到现在一直使用的是Windows系统开发，Mac系统虽然用过，但是一段时间后又换回来了。并不是说Mac系统不好，但是博主除了Android之外，还喜欢捣鼓一些其他的黑科技，收集一些看似能够提升效率的工具，Mac在这个上面相比Windows有些劣势，但是不得不说，Mac的开发效率是真的高，Google的员工都在用Mac。不过这个主要是看人吧，毕竟真正的程序员网吧也能敲代码，就和真正的作家网吧也能码字一样。  </li>
-<li><strong>测试用手机</strong>：有条件的强烈推荐小米<br>Android开发必然会需要调试自己开发的程序，在入门的时候，可以使用模拟器啥的（也推荐一下模拟器好了<a href="https://juejin.im/post/5aec3fa96fb9a07aca7a0961" title="Genymotion" target="_blank" rel="noopener">Genymotion</a>），但是开发的越久…..<br>各位，模拟器的能力是有极限的<br>我从短暂的开发过程当中学到一件事……<br>越是各种测试,就越会发现模拟器的能力是有极限的……<br>除非超越模拟器。<br>所以这里我推荐大家有条件的买个真机，几百块的就行，Android系统最好是6.0的，这个涉及到版本适配问题，之后会详细说明。<br>还有就是博主是米粉，不是其他原因，单纯的是因为在开发过程中，遇到过各种机型适配问题后发现，国产机中，VO两家问题最多，华为其次，小米最少。(顺便三星是真的垃圾，三星的拍照接口和大家都不一样，问题很多。  </li>
-</ul>
-<h2 id="二、开发环境"><a href="#二、开发环境" class="headerlink" title="二、开发环境"></a>二、开发环境</h2><p>主流的Android开发环境主要有三种  </p>
-<ul>
-<li>Android Studio<br>Android Studio(以下简称AS)，AS是Google推出，专门为Android“量身订做”的，是Google大力支持的一款基于IntelliJ idea改造的IDE，google的工程师团队一直在不断完善，现在AS相比其他Android开发软件（Eclipse我并不是针对你，我只是想说：）具有的优点有：速度更快，更加智能，整合了Gradle，具有强大的UI编辑器，内置终端模拟器，海量第三方插件，完美整合各个版本控制，本身UI更美观。  </li>
-<li>Eclipse+ADT：<br>先说明一点，Android团队已经停止了对Eclipse的ADT的更新，现在ADT的更新是由Eclipse团队完成的，所以，你如果使用Eclipse开发的话，没法第一时间体验最新Android版本，同时Eclipse会逐渐被淘汰，不过现在任有一定数量的公司在使用Eclipse开发。</li>
-<li>IntelliJ IDEA：<br>虽然说AS是基于IntelliJ idea改造的，但是现在AS和IntelliJ idea在Android开发上可以说是天差地别，AS是专门针对Android开发的IDE，而IntelliJ idea属于多语言开发的IDE。Google团队将NDK(Native development kit)从Android Support Plugin中抽出了，如果使用IntelliJ idea则无法使用NDK。并且之后可能会出现更多的工具只能在AS中使用，而不能在其他应用中使用。  </li>
-</ul>
-<p>综上所述，力推Android Studio作为Android入门开发软件。  </p>
-<h2 id="三、翻墙"><a href="#三、翻墙" class="headerlink" title="三、翻墙"></a>三、翻墙</h2><p>国内的网络环境对Android开发及其不友好，谷歌被墙在门外，导致我们如果不翻墙的话，就根本没法获取官方提供的资源和文档，同时AS下载的也是墙外资源。<br>作为一名程序员，翻墙并习惯使用Google解决问题，会发现一个新世界。<del>（面向 Google/Stack Overflow 编程）</del><br>这里推荐使用Shadowsocks/ShadowsocksR来翻墙，教程如下 <a href="https://www.textarea.com/ExpectoPatronum/shiyong-shadowsocks-kexue-shangwang-265/" title="使用shadowsocks科学上网" target="_blank" rel="noopener">使用shadowsocks科学上网</a> ，这个教程中需要花钱的地方只有买服务器，自建翻墙服务，如果懒得去自建服务器的话，可以使用Shadowsocks自带的免费服务器爬墙，也可以选择购买Shadowsocks的付费服务，几百块钱换一年可以翻墙的机会，绝对不亏。   </p>
-<h1 id="Google官方教程"><a href="#Google官方教程" class="headerlink" title="Google官方教程"></a>Google官方教程</h1><hr>
-<p><a href="https://developer.android.com/guide/" target="_blank" rel="noopener">谷歌官方教程</a><br><a href="http://hukai.me/android-training-course-in-chinese/index.html" target="_blank" rel="noopener">国内汉化教程</a><br>官方提供的东西虽然全面，但是因为Android系统本身比较复杂，所以刚入门的新手可能看起来反而比较迷茫，可以作为工具书来查阅，入门学习的话，并不是很推荐。  </p>
-<h1 id="Android基础知识"><a href="#Android基础知识" class="headerlink" title="Android基础知识"></a>Android基础知识</h1><hr>
-<p>以下会列出博主自己在学习过程中遇到的，认为比较好的其他博客  </p>
-<p>首先要致敬<strong>stormzhang</strong>大神的<a href="http://stormzhang.com/android/2014/07/07/learn-android-from-rookie/" target="_blank" rel="noopener">Android学习之路</a>。</p>
-<p>以下干货：  </p>
-<h2 id="零、语言基础"><a href="#零、语言基础" class="headerlink" title="零、语言基础"></a>零、语言基础</h2><p>目前Android开发最热门的语言是<strong>Java</strong>，同时Google团队也推出了<strong>kotlin</strong>，如果你是个想要在国内找一份用来谋生工作的，没有工作经验，没有JAVA经验的人。不要使用kotlin入门，就我所知，目前国内招Android开发的公司，90%使用的是Java作为开发语言<del>（而且就算你Android入门失败了，你还可以用Java去找工作）</del>。如果是想要提升自己，或者想要学点新知识来充电的话，kotlin其实是一个很不错的语言。<br>所以学好Java基础很重要  </p>
-<ul>
-<li>Java知识：<br>博主入门的参考书：<a href="https://book.douban.com/subject/3640322/" target="_blank" rel="noopener">大话Java</a>  </li>
-<li>Java设计模式：<br><a href="https://book.douban.com/subject/2334288/" target="_blank" rel="noopener">大话设计模式</a></li>
-</ul>
-<p>本文并不推荐直接买书，这两本书在网上资源已经流传了很久了，大家可以下载看看，等有能力之后可以再补票，如果你比较习惯看实体书，那直接买也无所谓，反正这两本书都很经典，值得购买。</p>
-<h2 id="一、Android基本知识"><a href="#一、Android基本知识" class="headerlink" title="一、Android基本知识"></a>一、Android基本知识</h2><p>写给出工具贴，本帖只用来查找你在阅读下文中遇到的不理解的知识点的扩展，还有对博主说的不完全的知识点的补充。<a href="https://juejin.im/post/587dbaf9570c3522010e400e" target="_blank" rel="noopener">Android 知识梳理</a>  </p>
-<p>这里会列出Android开发的基本知识点，和对应博客   </p>
-<ul>
-<li><a href="https://www.cnblogs.com/bravestarrhu/archive/2012/05/02/2479461.html" target="_blank" rel="noopener">Android四大基本组件</a><ul>
-<li><a href="https://www.jianshu.com/p/d4d677727a0a" target="_blank" rel="noopener">Activity</a></li>
-<li><a href="https://www.jianshu.com/p/b44e2620167f" target="_blank" rel="noopener">Service</a></li>
-<li><a href="http://www.cnblogs.com/linjiqin/archive/2011/05/28/2061396.html" target="_blank" rel="noopener">Content Provider</a></li>
-<li><a href="https://www.jianshu.com/p/5459c653b34a" target="_blank" rel="noopener">Broadcast Receiver</a></li>
-</ul>
-</li>
-<li><a href="https://www.jianshu.com/p/19147a69e970" target="_blank" rel="noopener">Intent</a></li>
-<li><a href="https://www.jianshu.com/p/dedbae8ffca1" target="_blank" rel="noopener">Fragment</a></li>
-<li><a href="https://ishinagimoeta.github.io/2018/09/30/AndroidStrageWays/" target="_blank" rel="noopener">数据存储</a><ul>
-<li>SharedPreference</li>
-<li>Sqlite</li>
-<li>文件存储</li>
-<li>网络存储</li>
-</ul>
-</li>
-<li><a href="https://www.jianshu.com/p/3141d4e46240" target="_blank" rel="noopener">网络请求</a> </li>
-<li><a href="https://ishinagimoeta.github.io/2018/10/10/ViewDetailed/" target="_blank" rel="noopener">常用View与优化</a></li>
-<li><a href="https://juejin.im/post/5ae32bac518825671a638405" target="_blank" rel="noopener">Android屏幕适配</a>  </li>
-</ul>
-<p>如果学完了上面的基础，基本上开发一个简单的APP就没什么问题了，不过想要熟练应用，还需要多练习，多谷歌。可以随便找一个简单点的APP复刻一下，用自己的方式还原出市面上的简单APP。<br>或者自己有些想法的话，也可以自己做一个原创APP，不过我推荐大家最好去做一些和网络请求有关的APP，这里推荐一个有较多免费API的平台<a href="http://api.mob.com/#/" target="_blank" rel="noopener">MobAPI</a>。</p>
-<p><a href="https://github.com/Freelander/Android_Data" target="_blank" rel="noopener">Android资源推荐</a><br><a href="https://github.com/cctanfujun/android-tips-tricks-cn" target="_blank" rel="noopener">Android开发技巧</a></p>
-
+        <p>之前公司要求在现有的APP上添加一个锁屏功能，一开始听着觉得好像还蛮简单的，真正写的时候写的自己一头包，因为在实现锁屏功能的过程中遇到了很多坑，在此记录下来。</p>
+<p>整体逻辑<br><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fydau1sh98j21120l8gmq.jpg" alt=""></p>
+<h1 id="难点一-锁屏界面实现方式的选择"><a href="#难点一-锁屏界面实现方式的选择" class="headerlink" title="难点一 锁屏界面实现方式的选择"></a>难点一 锁屏界面实现方式的选择</h1><p>现在大部分锁屏由两种方式实现，第一种是使用悬浮窗的方式，实现一个全屏悬浮窗，来拦截所有点击事件实现的锁屏，另一种就是创建一个Activity，来假装自己是一个锁屏界面。  </p>
+<h2 id="悬浮窗的实现方式"><a href="#悬浮窗的实现方式" class="headerlink" title="悬浮窗的实现方式"></a>悬浮窗的实现方式</h2><p>悬浮窗能够无视Home键，在按下home键的时候不会退到后台。所以不需要在home键的问题上纠结。悬浮窗统一由WindowManager来管理，具体的实现比较简单，笔者就不赘述了，有个坑要注意，悬浮窗需要声明权限：  </p>
+<p><code>&lt;uses-permission android:name=&quot;android.permission.SYSTEM_ALERT_WINDOW&quot; /&gt;</code>  </p>
+<p>有的手机设置里，默认是不给应用授权悬浮窗使用权的，所以应用里还要考虑引导用户授权悬浮窗使用。<br>此外，有些应急解锁的场景，比如来电接听，闹铃处理，对于Activity实现的锁屏界面，系统会自动把所有的前台Activity隐藏，让用户直接去处理这些场景。但是悬浮窗会盖住场景，所以遇到这些场景，悬浮窗实现的锁屏界面要自己去处理这些特殊场景的自动解锁。</p>
+<h2 id="Activity的实现方式"><a href="#Activity的实现方式" class="headerlink" title="Activity的实现方式"></a>Activity的实现方式</h2><p>也不知道为啥，我在想设计思路的时候下载的所有锁屏界面的实现方式都是使用一个假Activity的方式来充当锁屏界面的，国内基本所有的锁屏都是以此方式实现。</p>
+<p>估计是因为悬浮窗的方式可能遇到的坑太多了，不敢保证自己能够全部规避，比如各种来电，各种消息提醒，还有各种第三方提醒，都可能和悬浮窗锁屏冲突，所以为了方便，反而实现Activity的方式会好些。所以我选择的是Activity的方式来实现的。</p>
+<p>不过使用Activity的方式来实现的话，就不得不去屏蔽一下Home键，Back键和Menu键这三个可能有实体的按键了。</p>
+<h1 id="难点二-屏蔽Home键"><a href="#难点二-屏蔽Home键" class="headerlink" title="难点二  屏蔽Home键"></a>难点二  屏蔽Home键</h1><p>既然是锁屏界面，当然只能通过界面上的一些滑动或者输入动作来解开锁屏，不能简单的直接被Home键一按，就解开了。从4.0开始，Home直接在framework层就被系统响应到，强退到桌面，第三方应用里已经无法再通过Activity.onKeyDown方法来监听和拦截Home键，尽管还象征性的保留了Home键的KeyCode来向前兼容，但是Home键按下去，并不会回调这个方法。</p>
+<p>除了onKeyDown，有没有其他办法监听Home键，有的。前台App退到后台会有广播ACTION_CLOSE_SYSTEM_DIALOGS，收到广播携带的intent之后，解析里面的”reason”参数，就可以知道退出原因是什么了。home键按下后，reason是”homekey”，最近任务键按下后，reason是”recentapps”。</p>
+<p>这当然不是最终方案，因为有些三星ROM里并不会有这个广播。而且广播的意思只是通知你一下，人家framework层已经把你的应用退回桌面了，你能监听home键，但没有办法拦截home键。也许想到了可以监听到home键的时候，马上把自己的Activity又重新打开展示，我试了一下，home键按下后startActivity会有延时3秒左右，这应该是Google早就想到了我们会这么干，做了这么一个延时方案。</p>
+<p>直接拦截行不通了，想想别的路子。按Home键是让系统退回到Launcher（即桌面启动器），那么如果我们的锁屏Activity本身就是Launcher的话，那按Home键不就等于回到我们的锁屏Activity，也就可以阻止它把锁屏Activity关掉了。</p>
+<p>怎么把自己的Activity声明为Launcher，在Activity中添加intent-filter：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.intent.action.MAIN"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.HOME"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.DEFAULT"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样，新安装的app会是一个能够作为launcher的app，所以首次按Home键的时候，就会有弹窗提示你选择要进入哪个launcher，选择我们自己的Activity，这样home键就被我们接管了。</p>
+<p>不过这样有一个很明显的问题，如果不在我们的锁屏界面按Home键，同样会进入到锁屏Activity。当然，解决的方式也简单，当我们按Home时进入锁屏Activity的onCreate里做一个判断，如果前一个前台Activity是锁屏Activity，那就不用对Home键处理，如果不是锁屏Activity，那就要关闭锁屏Activity，跳到用户真正的桌面启动器去了。真正的桌面启动器是哪一个，我们可以这样来找：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; pkgNamesT = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">List&lt;String&gt; actNamesT = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">List&lt;ResolveInfo&gt; resolveInfos = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);　　</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; resolveInfos.size(); i++) &#123;</span><br><span class="line">    String string = resolveInfos.get(i).activityInfo.packageName;</span><br><span class="line">    <span class="keyword">if</span> (!string.equals(context.getPackageName())) &#123;<span class="comment">//自己的launcher不要 　　　　　</span></span><br><span class="line">        pkgNamesT.add(string);</span><br><span class="line">        string = resolveInfos.get(i).activityInfo.name;</span><br><span class="line">        actNamesT.add(string);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果实际的launcher只有一个，那直接跳转过去就可以了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ComponentName componentName = <span class="keyword">new</span> ComponentName(pkgName, actName); </span><br><span class="line">Intent intent = <span class="keyword">new</span> Intent(); </span><br><span class="line">intent.setComponent(componentName); </span><br><span class="line">context.startActivity(intent); </span><br><span class="line">((Activity) context).finish();</span><br></pre></td></tr></table></figure>
+<p>如果手机安装有多个launcher（如360桌面一类的app）就会麻烦一点，需要展示一个列表让用户来选取用哪个launcher，这个在产品形态上可能会让用户觉得有点不解。<br>现在，如果在其他APP里按一下Home键，会跳到我们的锁屏Activity然后跳转到真正的launcher。这里可能会有Activity闪现一下的场景，影响用户体验。最优的办法其实是另外弄一个Activity来作为Home键跳转的Activity，这个Activity设为透明的，就不会被用户感知。如此，产品形态就变成了，锁屏Activity中按Home键，跳转到透明Activity，跳转回锁屏Activity，相当于Home键无效；其他APP中按Home键，跳转到透明Activity，跳转到真正的桌面。<br>实现透明的Activity，只需要在xml中声明。</p>
+<pre><code class="xml">android:theme=&quot;@android:style/Theme.Translucent.NoTitleBar&quot;
+</code></pre>
+<p>这样的界面是透明的，实际上有占位在屏幕的顶层，所以跳转后记得要finish掉，不然会阻断跳转后的界面的交互。<br>另外，Theme.NoDisplay也能将Activity设置为不可见，而且不占位，但是笔者实现的时候发现，NoDisplay的Activity无法被系统设置为launcher（设置后会弹窗让你重新设置，如此反复）</p>
+<h2 id="难点三-何时加载锁屏Activity"><a href="#难点三-何时加载锁屏Activity" class="headerlink" title="难点三 何时加载锁屏Activity"></a>难点三 何时加载锁屏Activity</h2><p>参考国内应用，我选择在屏幕熄灭的时候来加载锁屏Activity，这样的话，如果想要在锁屏上加载东西可以有更多的缓冲时间，如果在亮屏是才监听则会出现闪一下锁屏前界面再出现我们的额锁屏界面的情况，用户体验很差。</p>
+<p>说到加载锁屏Activity的话，就不得不先授予两个权限。</p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.DISABLE_KEYGUARD"</span> /&gt;</span>
+<span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.WAKE_LOCK"</span> /&gt;</span>
+</code></pre>
+<p>只有应用被授予这两个权限后，才能在替换系统锁屏，并在后台唤起锁屏Activity。</p>
+<p>有了自己的锁屏界面，还需要禁用掉系统的锁屏，以免造成用户需要解锁两次的局面。</p>
+<p>首先我们需要知道用户是否设置了锁屏，方法如下：</p>
+<p>对于API Level 16及以上SDK，可以使用如下方法判断是否有锁：  </p>
+<p><code>((KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE)).isKeyguardSecure()</code>  </p>
+<p>对API Level 15及以下SDK，可以使用反射来判断：  </p>
+<pre><code class="java"><span class="keyword">try</span> {
+    Class&lt;?&gt; clazz = Class.forName(<span class="string">"com.android.internal.widget.LockPatternUtils"</span>);
+    Constructor&lt;?&gt; constructor = clazz.getConstructor(Context.class);
+    constructor.setAccessible(<span class="keyword">true</span>);
+    Object utils = constructor.newInstance(<span class="keyword">this</span>);
+    Method method = clazz.getMethod(<span class="string">"isSecure"</span>);
+    <span class="keyword">return</span> (Boolean) method.invoke(utils);
+}<span class="keyword">catch</span> (Exception e){
+    e.printStackTrace();
+}
+</code></pre>
+<p>得知用户设置了系统锁屏，怎么关掉呢？有前人建议了这种方法:</p>
+<pre><code class="java">KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+KeyguardManager.KeyguardLock keyguardLock = km.newKeyguardLock(<span class="string">""</span>);
+keyguardLock.disableKeyguard();
+</code></pre>
+<p>这一步如果没有上面授的权的话，会无效。不过这种方法只能禁用滑动锁，如果用户设置的是图案或者PIN的锁的话，是无法直接取消的。禁用掉密码锁或者图案锁是一个很危险的行为，基于此，Google应该是不会把它开放给开发者的。</p>
+<p>如果你想要自己锁屏界面的背景和桌面相同，可以简单设置：  </p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"LockScreenBase"</span> <span class="attr">parent</span>=<span class="string">"AppBaseTheme"</span>&gt;</span><span class="undefined"></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowIsTranslucent"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowBackground"</span>&gt;</span>@android:color/transparent<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:colorBackgroundCacheHint"</span>&gt;</span>@null<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowNoTitle"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:backgroundDimEnabled"</span>&gt;</span>false<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowAnimationStyle"</span>&gt;</span>@null<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowContentOverlay"</span>&gt;</span>@null<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span>
+</code></pre>
+<p>将windowBackground属性设置为透明即可。</p>
+<h1 id="难点四-隐藏踪迹与独立的Task"><a href="#难点四-隐藏踪迹与独立的Task" class="headerlink" title="难点四 隐藏踪迹与独立的Task"></a>难点四 隐藏踪迹与独立的Task</h1><p>作为一个锁屏界面, 应当是独立的, 也就是说, 我们这个Activity应当独立于我们的App存在, 至少看起来是这样. 从Android的角度来看, 我们app的主界面里的所有Activity, 应当在一个Task里, 而锁屏Activity, 应当在一个独立的Task里, 因此我们需要给锁屏Activity一个独立的Task, 而且无论何时, 都只有一个锁屏Activity实例存在。<br>另外, Android有查看近期任务的功能, 我们不希望锁屏界面这个独立的Task显示在里面, 所以锁屏Activity不能显示在近期任务中。<br>说了这么多, 要做很简单, 只需要在Manifest里面声明Activity时加入几个属性即可  </p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">activity</span> </span>
+<span class="tag"><span class="attr">android:excludeFromRecents</span>=<span class="string">"true"</span> </span>
+<span class="tag"><span class="attr">android:exported</span>=<span class="string">"false"</span> </span>
+<span class="tag"><span class="attr">android:launchMode</span>=<span class="string">"singleInstance"</span></span>
+<span class="tag"><span class="attr">android:name</span>=<span class="string">".view.lockscreen.LockScreenActivity"</span></span>
+<span class="tag"><span class="attr">android:screenOrientation</span>=<span class="string">"portrait"</span></span>
+<span class="tag"><span class="attr">android:theme</span>=<span class="string">"@android:style/Theme.Wallpaper.NoTitleBar"</span> /&gt;</span>
+</code></pre>
+<p>或者也可以这样写</p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">activity</span> </span>
+<span class="tag"><span class="attr">android:excludeFromRecents</span>=<span class="string">"true"</span> </span>
+<span class="tag"><span class="attr">android:exported</span>=<span class="string">"false"</span> </span>
+<span class="tag"><span class="attr">android:launchMode</span>=<span class="string">"singleTask"</span></span>
+<span class="tag"><span class="attr">android:taskAffinity</span>=<span class="string">"com.xxx.xxx.view.lockscreen.LockScreenActivity"</span></span>
+<span class="tag"><span class="attr">android:name</span>=<span class="string">".view.lockscreen.LockScreenActivity"</span></span>
+<span class="tag"><span class="attr">android:screenOrientation</span>=<span class="string">"portrait"</span></span>
+<span class="tag"><span class="attr">android:theme</span>=<span class="string">"@android:style/Theme.Wallpaper.NoTitleBar"</span> /&gt;</span>
+</code></pre>
+<p>上面的属性中<code>android:excludeFromRecents=&quot;true&quot;</code>让锁屏Activity不显示在近期任务中,<code>android:launchMode=&quot;singleInstance&quot;</code>或者<code>android:launchMode=&quot;singleTask&quot;</code>与<code>android:taskAffinity=&quot;com.package.name.lockscreen&quot;</code>的组合保证锁屏Activity有一个单独的Task, 且这个Task里永远只有它一个实例。<br>注意<code>android:taskAffinity</code>属性只能在启动模式是singleTask时生效。</p>
+<h1 id="难点五-处理黑色闪屏"><a href="#难点五-处理黑色闪屏" class="headerlink" title="难点五 处理黑色闪屏"></a>难点五 处理黑色闪屏</h1><p>我们的锁屏Activity在滑动”解锁”之后, 理论上是直接进入下面的界面, 但有时如果下面不是launcher, 而是一个app, 有可能会闪一下黑屏, 这个其实是底下activity的入场动画导致的, 某些Android版本会对顶部activity透明时处理有些奇怪, 我们不能保证其他的应用不闪黑屏, 但是对自己的的应用还是可以的, 只需要在我们的主体activity的style中加上</p>
+<pre><code>&lt;item name=&quot;android:windowAnimationStyle&quot;&gt;@null&lt;/item&gt;
+</code></pre><p>就不会有这种情况发生了, 但是这样的话入场动画也没了, 总之如何取舍具体看需求吧。</p>
+<p>基本上难点就以上说的那些，其实都是一些小细节，但是如果不一一处理的话，锁屏看起来会显得很假。然后下面我们就来继续说一下如何让锁屏看起来显得更自然，更逼真的方式。</p>
+<h1 id="沉浸式"><a href="#沉浸式" class="headerlink" title="沉浸式"></a>沉浸式</h1><p>什么是沉浸模式？从4.4开始，Android 为<code>setSystemUiVisibility()</code>方法提供了新的标记 <code>&quot;SYSTEM_UI_FLAG_IMMERSIVE&quot;</code>以及<code>&quot;SYSTEM_UI_FLAG_IMMERSIVE_STIKY&quot;</code>，就是我们所谈的沉浸模式，全称为 <code>&quot;Immersive Full-Screen Mode&quot;</code>，它可以使你的app隐藏状态栏和导航栏，实现真正意义上的全屏体验。</p>
+<p>之前 Android 也是有全屏模式的，主要通过<code>setSystemUiVisibility()</code>添加两个Flag，即<code>&quot;SYSTEM_UI_FLAG_FULLSCREEN&quot;</code>，<code>&quot;SYSTEM_UI_FLAG_HIDE_NAVIGATION&quot;</code>（仅适用于使用导航栏的设备，即虚拟按键）。</p>
+<p>这两个标记都存在一些问题，例如使用第一个标记的时候，除非 App 提供暂时退出全屏模式的功能（例如部分电子书软件中点击一次屏幕中央位置），用户是一直都没法看见状态栏的。这样，如果用户想去看看通知中心有什么通知，那就必须点击一次屏幕，显示状态栏，然后才能调出通知中心。</p>
+<p>而第二个标记的问题在于，Google 认为导航栏对于用户来说是十分重要的，所以只会短暂隐藏导航栏。一旦用户做其他操作，例如点击一次屏幕，导航栏就会马上被重新调出。这样的设定对于看图软件，视频软件等等没什么大问题，但是对于游戏之类用户需要经常点击屏幕的 App，那就几乎是悲剧了——这也是为什么你在 Android 4.4 之前找不到什么全屏模式会自动隐藏导航栏的应用。</p>
+<p>Android 4.4 之后加入的Immersive Full-Screen Mode 允许用户在应用全屏的情况下，通过在原有的状态栏/导航栏区域内做向内滑动的手势来实现短暂调出状态栏和导航栏的操作，且不会影响应用的正常全屏，短暂调出的状态栏和导航栏会呈半透明状态，并且在一段时间内或者用户与应用内元素进行互动的情况下自动隐藏，沉浸模式的四种状态如下图。</p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fydb0ji2oxj20ix090q4o.jpg" alt=""></p>
+<p>突然懒一下，剩下的下周补完</p>
+<h1 id="Service保活"><a href="#Service保活" class="headerlink" title="Service保活"></a>Service保活</h1><h1 id="版本适配机型适配"><a href="#版本适配机型适配" class="headerlink" title="版本适配机型适配"></a>版本适配机型适配</h1><h1 id="冲突处理"><a href="#冲突处理" class="headerlink" title="冲突处理"></a>冲突处理</h1>
       
 
       
@@ -288,7 +329,7 @@
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">总结</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">锁屏</a>
         		</li>
       		
 		</ul>
@@ -355,7 +396,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/09/29/AndroidTotalsink/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/12/20/screenLockActivity/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -369,15 +410,11 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/09/30/AndroidStrageWays/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Android四种数据存储方式
-        
-      </div>
-    </a>
   
+    <a href="/2018/11/10/permissionCheck/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Android权限检查(版本适配)</div>
+      <i class="icon-circle-right"></i>
+    </a>
   
 </nav>
 

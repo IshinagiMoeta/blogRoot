@@ -164,6 +164,189 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-screenLockActivity" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/20/screenLockActivity/">Android锁屏Activity实现</a>
+    </h1>
+  
+
+        
+        <a href="/2018/12/20/screenLockActivity/" class="archive-article-date">
+  	<time datetime="2018-12-20T06:55:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-20</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>之前公司要求在现有的APP上添加一个锁屏功能，一开始听着觉得好像还蛮简单的，真正写的时候写的自己一头包，因为在实现锁屏功能的过程中遇到了很多坑，在此记录下来。</p>
+<p>整体逻辑<br><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fydau1sh98j21120l8gmq.jpg" alt=""></p>
+<h1 id="难点一-锁屏界面实现方式的选择"><a href="#难点一-锁屏界面实现方式的选择" class="headerlink" title="难点一 锁屏界面实现方式的选择"></a>难点一 锁屏界面实现方式的选择</h1><p>现在大部分锁屏由两种方式实现，第一种是使用悬浮窗的方式，实现一个全屏悬浮窗，来拦截所有点击事件实现的锁屏，另一种就是创建一个Activity，来假装自己是一个锁屏界面。  </p>
+<h2 id="悬浮窗的实现方式"><a href="#悬浮窗的实现方式" class="headerlink" title="悬浮窗的实现方式"></a>悬浮窗的实现方式</h2><p>悬浮窗能够无视Home键，在按下home键的时候不会退到后台。所以不需要在home键的问题上纠结。悬浮窗统一由WindowManager来管理，具体的实现比较简单，笔者就不赘述了，有个坑要注意，悬浮窗需要声明权限：  </p>
+<p><code>&lt;uses-permission android:name=&quot;android.permission.SYSTEM_ALERT_WINDOW&quot; /&gt;</code>  </p>
+<p>有的手机设置里，默认是不给应用授权悬浮窗使用权的，所以应用里还要考虑引导用户授权悬浮窗使用。<br>此外，有些应急解锁的场景，比如来电接听，闹铃处理，对于Activity实现的锁屏界面，系统会自动把所有的前台Activity隐藏，让用户直接去处理这些场景。但是悬浮窗会盖住场景，所以遇到这些场景，悬浮窗实现的锁屏界面要自己去处理这些特殊场景的自动解锁。</p>
+<h2 id="Activity的实现方式"><a href="#Activity的实现方式" class="headerlink" title="Activity的实现方式"></a>Activity的实现方式</h2><p>也不知道为啥，我在想设计思路的时候下载的所有锁屏界面的实现方式都是使用一个假Activity的方式来充当锁屏界面的，国内基本所有的锁屏都是以此方式实现。</p>
+<p>估计是因为悬浮窗的方式可能遇到的坑太多了，不敢保证自己能够全部规避，比如各种来电，各种消息提醒，还有各种第三方提醒，都可能和悬浮窗锁屏冲突，所以为了方便，反而实现Activity的方式会好些。所以我选择的是Activity的方式来实现的。</p>
+<p>不过使用Activity的方式来实现的话，就不得不去屏蔽一下Home键，Back键和Menu键这三个可能有实体的按键了。</p>
+<h1 id="难点二-屏蔽Home键"><a href="#难点二-屏蔽Home键" class="headerlink" title="难点二  屏蔽Home键"></a>难点二  屏蔽Home键</h1><p>既然是锁屏界面，当然只能通过界面上的一些滑动或者输入动作来解开锁屏，不能简单的直接被Home键一按，就解开了。从4.0开始，Home直接在framework层就被系统响应到，强退到桌面，第三方应用里已经无法再通过Activity.onKeyDown方法来监听和拦截Home键，尽管还象征性的保留了Home键的KeyCode来向前兼容，但是Home键按下去，并不会回调这个方法。</p>
+<p>除了onKeyDown，有没有其他办法监听Home键，有的。前台App退到后台会有广播ACTION_CLOSE_SYSTEM_DIALOGS，收到广播携带的intent之后，解析里面的”reason”参数，就可以知道退出原因是什么了。home键按下后，reason是”homekey”，最近任务键按下后，reason是”recentapps”。</p>
+<p>这当然不是最终方案，因为有些三星ROM里并不会有这个广播。而且广播的意思只是通知你一下，人家framework层已经把你的应用退回桌面了，你能监听home键，但没有办法拦截home键。也许想到了可以监听到home键的时候，马上把自己的Activity又重新打开展示，我试了一下，home键按下后startActivity会有延时3秒左右，这应该是Google早就想到了我们会这么干，做了这么一个延时方案。</p>
+<p>直接拦截行不通了，想想别的路子。按Home键是让系统退回到Launcher（即桌面启动器），那么如果我们的锁屏Activity本身就是Launcher的话，那按Home键不就等于回到我们的锁屏Activity，也就可以阻止它把锁屏Activity关掉了。</p>
+<p>怎么把自己的Activity声明为Launcher，在Activity中添加intent-filter：  </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.intent.action.MAIN"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.HOME"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.DEFAULT"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样，新安装的app会是一个能够作为launcher的app，所以首次按Home键的时候，就会有弹窗提示你选择要进入哪个launcher，选择我们自己的Activity，这样home键就被我们接管了。</p>
+<p>不过这样有一个很明显的问题，如果不在我们的锁屏界面按Home键，同样会进入到锁屏Activity。当然，解决的方式也简单，当我们按Home时进入锁屏Activity的onCreate里做一个判断，如果前一个前台Activity是锁屏Activity，那就不用对Home键处理，如果不是锁屏Activity，那就要关闭锁屏Activity，跳到用户真正的桌面启动器去了。真正的桌面启动器是哪一个，我们可以这样来找：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">List&lt;String&gt; pkgNamesT = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">List&lt;String&gt; actNamesT = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">List&lt;ResolveInfo&gt; resolveInfos = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);　　</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; resolveInfos.size(); i++) &#123;</span><br><span class="line">    String string = resolveInfos.get(i).activityInfo.packageName;</span><br><span class="line">    <span class="keyword">if</span> (!string.equals(context.getPackageName())) &#123;<span class="comment">//自己的launcher不要 　　　　　</span></span><br><span class="line">        pkgNamesT.add(string);</span><br><span class="line">        string = resolveInfos.get(i).activityInfo.name;</span><br><span class="line">        actNamesT.add(string);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果实际的launcher只有一个，那直接跳转过去就可以了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ComponentName componentName = <span class="keyword">new</span> ComponentName(pkgName, actName); </span><br><span class="line">Intent intent = <span class="keyword">new</span> Intent(); </span><br><span class="line">intent.setComponent(componentName); </span><br><span class="line">context.startActivity(intent); </span><br><span class="line">((Activity) context).finish();</span><br></pre></td></tr></table></figure>
+<p>如果手机安装有多个launcher（如360桌面一类的app）就会麻烦一点，需要展示一个列表让用户来选取用哪个launcher，这个在产品形态上可能会让用户觉得有点不解。<br>现在，如果在其他APP里按一下Home键，会跳到我们的锁屏Activity然后跳转到真正的launcher。这里可能会有Activity闪现一下的场景，影响用户体验。最优的办法其实是另外弄一个Activity来作为Home键跳转的Activity，这个Activity设为透明的，就不会被用户感知。如此，产品形态就变成了，锁屏Activity中按Home键，跳转到透明Activity，跳转回锁屏Activity，相当于Home键无效；其他APP中按Home键，跳转到透明Activity，跳转到真正的桌面。<br>实现透明的Activity，只需要在xml中声明。</p>
+<pre><code class="xml">android:theme=&quot;@android:style/Theme.Translucent.NoTitleBar&quot;
+</code></pre>
+<p>这样的界面是透明的，实际上有占位在屏幕的顶层，所以跳转后记得要finish掉，不然会阻断跳转后的界面的交互。<br>另外，Theme.NoDisplay也能将Activity设置为不可见，而且不占位，但是笔者实现的时候发现，NoDisplay的Activity无法被系统设置为launcher（设置后会弹窗让你重新设置，如此反复）</p>
+<h2 id="难点三-何时加载锁屏Activity"><a href="#难点三-何时加载锁屏Activity" class="headerlink" title="难点三 何时加载锁屏Activity"></a>难点三 何时加载锁屏Activity</h2><p>参考国内应用，我选择在屏幕熄灭的时候来加载锁屏Activity，这样的话，如果想要在锁屏上加载东西可以有更多的缓冲时间，如果在亮屏是才监听则会出现闪一下锁屏前界面再出现我们的额锁屏界面的情况，用户体验很差。</p>
+<p>说到加载锁屏Activity的话，就不得不先授予两个权限。</p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.DISABLE_KEYGUARD"</span> /&gt;</span>
+<span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.WAKE_LOCK"</span> /&gt;</span>
+</code></pre>
+<p>只有应用被授予这两个权限后，才能在替换系统锁屏，并在后台唤起锁屏Activity。</p>
+<p>有了自己的锁屏界面，还需要禁用掉系统的锁屏，以免造成用户需要解锁两次的局面。</p>
+<p>首先我们需要知道用户是否设置了锁屏，方法如下：</p>
+<p>对于API Level 16及以上SDK，可以使用如下方法判断是否有锁：  </p>
+<p><code>((KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE)).isKeyguardSecure()</code>  </p>
+<p>对API Level 15及以下SDK，可以使用反射来判断：  </p>
+<pre><code class="java"><span class="keyword">try</span> {
+    Class&lt;?&gt; clazz = Class.forName(<span class="string">"com.android.internal.widget.LockPatternUtils"</span>);
+    Constructor&lt;?&gt; constructor = clazz.getConstructor(Context.class);
+    constructor.setAccessible(<span class="keyword">true</span>);
+    Object utils = constructor.newInstance(<span class="keyword">this</span>);
+    Method method = clazz.getMethod(<span class="string">"isSecure"</span>);
+    <span class="keyword">return</span> (Boolean) method.invoke(utils);
+}<span class="keyword">catch</span> (Exception e){
+    e.printStackTrace();
+}
+</code></pre>
+<p>得知用户设置了系统锁屏，怎么关掉呢？有前人建议了这种方法:</p>
+<pre><code class="java">KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+KeyguardManager.KeyguardLock keyguardLock = km.newKeyguardLock(<span class="string">""</span>);
+keyguardLock.disableKeyguard();
+</code></pre>
+<p>这一步如果没有上面授的权的话，会无效。不过这种方法只能禁用滑动锁，如果用户设置的是图案或者PIN的锁的话，是无法直接取消的。禁用掉密码锁或者图案锁是一个很危险的行为，基于此，Google应该是不会把它开放给开发者的。</p>
+<p>如果你想要自己锁屏界面的背景和桌面相同，可以简单设置：  </p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"LockScreenBase"</span> <span class="attr">parent</span>=<span class="string">"AppBaseTheme"</span>&gt;</span><span class="undefined"></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowIsTranslucent"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowBackground"</span>&gt;</span>@android:color/transparent<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:colorBackgroundCacheHint"</span>&gt;</span>@null<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowNoTitle"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:backgroundDimEnabled"</span>&gt;</span>false<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowAnimationStyle"</span>&gt;</span>@null<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowContentOverlay"</span>&gt;</span>@null<span class="tag">&lt;/<span class="name">item</span>&gt;</span> </span>
+<span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span>
+</code></pre>
+<p>将windowBackground属性设置为透明即可。</p>
+<h1 id="难点四-隐藏踪迹与独立的Task"><a href="#难点四-隐藏踪迹与独立的Task" class="headerlink" title="难点四 隐藏踪迹与独立的Task"></a>难点四 隐藏踪迹与独立的Task</h1><p>作为一个锁屏界面, 应当是独立的, 也就是说, 我们这个Activity应当独立于我们的App存在, 至少看起来是这样. 从Android的角度来看, 我们app的主界面里的所有Activity, 应当在一个Task里, 而锁屏Activity, 应当在一个独立的Task里, 因此我们需要给锁屏Activity一个独立的Task, 而且无论何时, 都只有一个锁屏Activity实例存在。<br>另外, Android有查看近期任务的功能, 我们不希望锁屏界面这个独立的Task显示在里面, 所以锁屏Activity不能显示在近期任务中。<br>说了这么多, 要做很简单, 只需要在Manifest里面声明Activity时加入几个属性即可  </p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">activity</span> </span>
+<span class="tag"><span class="attr">android:excludeFromRecents</span>=<span class="string">"true"</span> </span>
+<span class="tag"><span class="attr">android:exported</span>=<span class="string">"false"</span> </span>
+<span class="tag"><span class="attr">android:launchMode</span>=<span class="string">"singleInstance"</span></span>
+<span class="tag"><span class="attr">android:name</span>=<span class="string">".view.lockscreen.LockScreenActivity"</span></span>
+<span class="tag"><span class="attr">android:screenOrientation</span>=<span class="string">"portrait"</span></span>
+<span class="tag"><span class="attr">android:theme</span>=<span class="string">"@android:style/Theme.Wallpaper.NoTitleBar"</span> /&gt;</span>
+</code></pre>
+<p>或者也可以这样写</p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">activity</span> </span>
+<span class="tag"><span class="attr">android:excludeFromRecents</span>=<span class="string">"true"</span> </span>
+<span class="tag"><span class="attr">android:exported</span>=<span class="string">"false"</span> </span>
+<span class="tag"><span class="attr">android:launchMode</span>=<span class="string">"singleTask"</span></span>
+<span class="tag"><span class="attr">android:taskAffinity</span>=<span class="string">"com.xxx.xxx.view.lockscreen.LockScreenActivity"</span></span>
+<span class="tag"><span class="attr">android:name</span>=<span class="string">".view.lockscreen.LockScreenActivity"</span></span>
+<span class="tag"><span class="attr">android:screenOrientation</span>=<span class="string">"portrait"</span></span>
+<span class="tag"><span class="attr">android:theme</span>=<span class="string">"@android:style/Theme.Wallpaper.NoTitleBar"</span> /&gt;</span>
+</code></pre>
+<p>上面的属性中<code>android:excludeFromRecents=&quot;true&quot;</code>让锁屏Activity不显示在近期任务中,<code>android:launchMode=&quot;singleInstance&quot;</code>或者<code>android:launchMode=&quot;singleTask&quot;</code>与<code>android:taskAffinity=&quot;com.package.name.lockscreen&quot;</code>的组合保证锁屏Activity有一个单独的Task, 且这个Task里永远只有它一个实例。<br>注意<code>android:taskAffinity</code>属性只能在启动模式是singleTask时生效。</p>
+<h1 id="难点五-处理黑色闪屏"><a href="#难点五-处理黑色闪屏" class="headerlink" title="难点五 处理黑色闪屏"></a>难点五 处理黑色闪屏</h1><p>我们的锁屏Activity在滑动”解锁”之后, 理论上是直接进入下面的界面, 但有时如果下面不是launcher, 而是一个app, 有可能会闪一下黑屏, 这个其实是底下activity的入场动画导致的, 某些Android版本会对顶部activity透明时处理有些奇怪, 我们不能保证其他的应用不闪黑屏, 但是对自己的的应用还是可以的, 只需要在我们的主体activity的style中加上</p>
+<pre><code>&lt;item name=&quot;android:windowAnimationStyle&quot;&gt;@null&lt;/item&gt;
+</code></pre><p>就不会有这种情况发生了, 但是这样的话入场动画也没了, 总之如何取舍具体看需求吧。</p>
+<p>基本上难点就以上说的那些，其实都是一些小细节，但是如果不一一处理的话，锁屏看起来会显得很假。然后下面我们就来继续说一下如何让锁屏看起来显得更自然，更逼真的方式。</p>
+<h1 id="沉浸式"><a href="#沉浸式" class="headerlink" title="沉浸式"></a>沉浸式</h1><p>什么是沉浸模式？从4.4开始，Android 为<code>setSystemUiVisibility()</code>方法提供了新的标记 <code>&quot;SYSTEM_UI_FLAG_IMMERSIVE&quot;</code>以及<code>&quot;SYSTEM_UI_FLAG_IMMERSIVE_STIKY&quot;</code>，就是我们所谈的沉浸模式，全称为 <code>&quot;Immersive Full-Screen Mode&quot;</code>，它可以使你的app隐藏状态栏和导航栏，实现真正意义上的全屏体验。</p>
+<p>之前 Android 也是有全屏模式的，主要通过<code>setSystemUiVisibility()</code>添加两个Flag，即<code>&quot;SYSTEM_UI_FLAG_FULLSCREEN&quot;</code>，<code>&quot;SYSTEM_UI_FLAG_HIDE_NAVIGATION&quot;</code>（仅适用于使用导航栏的设备，即虚拟按键）。</p>
+<p>这两个标记都存在一些问题，例如使用第一个标记的时候，除非 App 提供暂时退出全屏模式的功能（例如部分电子书软件中点击一次屏幕中央位置），用户是一直都没法看见状态栏的。这样，如果用户想去看看通知中心有什么通知，那就必须点击一次屏幕，显示状态栏，然后才能调出通知中心。</p>
+<p>而第二个标记的问题在于，Google 认为导航栏对于用户来说是十分重要的，所以只会短暂隐藏导航栏。一旦用户做其他操作，例如点击一次屏幕，导航栏就会马上被重新调出。这样的设定对于看图软件，视频软件等等没什么大问题，但是对于游戏之类用户需要经常点击屏幕的 App，那就几乎是悲剧了——这也是为什么你在 Android 4.4 之前找不到什么全屏模式会自动隐藏导航栏的应用。</p>
+<p>Android 4.4 之后加入的Immersive Full-Screen Mode 允许用户在应用全屏的情况下，通过在原有的状态栏/导航栏区域内做向内滑动的手势来实现短暂调出状态栏和导航栏的操作，且不会影响应用的正常全屏，短暂调出的状态栏和导航栏会呈半透明状态，并且在一段时间内或者用户与应用内元素进行互动的情况下自动隐藏，沉浸模式的四种状态如下图。</p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fydb0ji2oxj20ix090q4o.jpg" alt=""></p>
+<p>突然懒一下，剩下的下周补完</p>
+<h1 id="Service保活"><a href="#Service保活" class="headerlink" title="Service保活"></a>Service保活</h1><h1 id="版本适配机型适配"><a href="#版本适配机型适配" class="headerlink" title="版本适配机型适配"></a>版本适配机型适配</h1><h1 id="冲突处理"><a href="#冲突处理" class="headerlink" title="冲突处理"></a>冲突处理</h1>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">锁屏</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/12/20/screenLockActivity/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-permissionCheck" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
   <div class="article-inner">
     
@@ -1400,7 +1583,7 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-P</a>
+                <a href="javascript:void(0)" class="js-tag color3">适配</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1408,7 +1591,7 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">适配</a>
+                <a href="javascript:void(0)" class="js-tag color3">锁屏</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1421,6 +1604,10 @@ MathJax.Hub.Queue(function() {
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Android-P</a>
               </li>
              
               <li class="article-tag-list-item">

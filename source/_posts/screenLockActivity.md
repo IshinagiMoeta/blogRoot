@@ -192,7 +192,7 @@ android:theme="@android:style/Theme.Wallpaper.NoTitleBar" />
 
 基本上难点就以上说的那些，其实都是一些小细节，但是如果不一一处理的话，锁屏看起来会显得很假。然后下面我们就来继续说一下如何让锁屏看起来显得更自然，更逼真的方式。
 
-# 沉浸式 #  
+# 沉浸式 #
 什么是沉浸模式？从4.4开始，Android 为`setSystemUiVisibility()`方法提供了新的标记 `"SYSTEM_UI_FLAG_IMMERSIVE"`以及`"SYSTEM_UI_FLAG_IMMERSIVE_STIKY"`，就是我们所谈的沉浸模式，全称为 `"Immersive Full-Screen Mode"`，它可以使你的app隐藏状态栏和导航栏，实现真正意义上的全屏体验。
 
 之前 Android 也是有全屏模式的，主要通过`setSystemUiVisibility()`添加两个Flag，即`"SYSTEM_UI_FLAG_FULLSCREEN"`，`"SYSTEM_UI_FLAG_HIDE_NAVIGATION"`（仅适用于使用导航栏的设备，即虚拟按键）。
@@ -205,8 +205,41 @@ Android 4.4 之后加入的Immersive Full-Screen Mode 允许用户在应用全�
 
 ![](https://ws1.sinaimg.cn/large/6bbf23f6gy1fydb0ji2oxj20ix090q4o.jpg)
 
+这里提供一个将状态栏设置为全透明的方法。  
 
-突然懒一下，剩下的下周补完
+```java
+public static void transparencyBar(Activity activity) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        Window window = activity.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+         window.getDecorView().setSystemUiVisibility(uiOptions);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(Color.TRANSPARENT);
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        //隐藏虚拟键盘
+        View decorView = activity.getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
+    } else if (Build.VERSION.SDK_INT < 19) {
+        View v = activity.getWindow().getDecorView();
+        v.setSystemUiVisibility(View.GONE);
+    }
+}
+```  
+
+可以将状态栏设置完全透明，并且在有虚拟按键的情况下也可以隐藏虚拟按键。
+
+
 # Service保活 #
+作为一个锁屏APP，首先你得尽量做到不被用户一不小心杀死，才能够更多次的出现，所以要做到锁屏服务的保活也是十分重要的。关于Service的保活，我写了一篇单独的博客，可以在我的网页里检索一下。
+
 # 版本适配机型适配 #
+因为各个手机的ROM不同，系统版本不同，所以需要做一些特殊处理，比如说小米想要授权应用锁屏，是需要引导用户手动开启的，还有VIVO上也有同样的问题。对于华为手机，在6.0以上和6.0一下需要做不同的处理，这也是要注意的地方。
 # 冲突处理 #
+所谓冲突，则是如果一台手机存在多个锁屏APP，同时开启了锁屏界面的权限的话，会出现不同应用争抢同一个锁屏界面显示的情况，并且该情况还没有特别好的解决办法，暂时没法处理。等待后续迭代解决。

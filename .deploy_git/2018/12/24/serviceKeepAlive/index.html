@@ -6,19 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2018 | Mika日常</title>
+  <title>Android的Service保活 | Mika日常</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="记录咪咔咔和她的哥哥姐姐的日常">
-<meta name="keywords" content="猫;Android">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Mika日常">
-<meta property="og:url" content="http://yoursite.com/archives/2018/index.html">
+  <meta name="description" content="在Android市场上，一直存在着一批批的软件，你即使在后台杀死，清理后台，也没法将他们彻底杀死，他们会用各种方式来给你发推送，通知，甚至突然跳出来一个界面。   这些应用都使用了不同的方式，却达到了相同的结果。在成为开发以前，我是很讨厌这种行为的，但是真正成为了一个Android开发，在满足公司需求的过程中，我了解到了这也是我们开发的一种无奈之举。  如果你要实现某种功能，需要常驻进程，或者需要">
+<meta name="keywords" content="Android,Service">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android的Service保活">
+<meta property="og:url" content="http://yoursite.com/2018/12/24/serviceKeepAlive/index.html">
 <meta property="og:site_name" content="Mika日常">
-<meta property="og:description" content="记录咪咔咔和她的哥哥姐姐的日常">
+<meta property="og:description" content="在Android市场上，一直存在着一批批的软件，你即使在后台杀死，清理后台，也没法将他们彻底杀死，他们会用各种方式来给你发推送，通知，甚至突然跳出来一个界面。   这些应用都使用了不同的方式，却达到了相同的结果。在成为开发以前，我是很讨厌这种行为的，但是真正成为了一个Android开发，在满足公司需求的过程中，我了解到了这也是我们开发的一种无奈之举。  如果你要实现某种功能，需要常驻进程，或者需要">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpfvm1rzj20ux02kaa2.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpl4tz9sj20yh05vwgc.jpg">
+<meta property="og:updated_time" content="2018-12-24T06:22:32.591Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mika日常">
-<meta name="twitter:description" content="记录咪咔咔和她的哥哥姐姐的日常">
+<meta name="twitter:title" content="Android的Service保活">
+<meta name="twitter:description" content="在Android市场上，一直存在着一批批的软件，你即使在后台杀死，清理后台，也没法将他们彻底杀死，他们会用各种方式来给你发推送，通知，甚至突然跳出来一个界面。   这些应用都使用了不同的方式，却达到了相同的结果。在成为开发以前，我是很讨厌这种行为的，但是真正成为了一个Android开发，在满足公司需求的过程中，我了解到了这也是我们开发的一种无奈之举。  如果你要实现某种功能，需要常驻进程，或者需要">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpfvm1rzj20ux02kaa2.jpg">
   
     <link rel="alternative" href="/atom.xml" title="Mika日常" type="application/atom+xml">
   
@@ -162,36 +166,357 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-serviceKeepAlive" class="article article-type-post " itemscope="" itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/12/24/serviceKeepAlive/" class="archive-article-date">
-  	<time datetime="2018-12-24T03:44:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-24</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/12/24/serviceKeepAlive/">Android的Service保活</a>
+    <h1 class="article-title" itemprop="name">
+      Android的Service保活
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2018/12/24/serviceKeepAlive/" class="archive-article-date">
+  	<time datetime="2018-12-24T03:44:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-24</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在Android市场上，一直存在着一批批的软件，你即使在后台杀死，清理后台，也没法将他们彻底杀死，他们会用各种方式来给你发推送，通知，甚至突然跳出来一个界面。  </p>
+<p>这些应用都使用了不同的方式，却达到了相同的结果。在成为开发以前，我是很讨厌这种行为的，但是真正成为了一个Android开发，在满足公司需求的过程中，我了解到了这也是我们开发的一种无奈之举。 </p>
+<p>如果你要实现某种功能，需要常驻进程，或者需要不让自己的进程被杀死回收，那么这篇博文可能可以给你一些帮助。  </p>
+<p>在此之前，有几个问题需要思考，系统为什么会杀掉进程，杀的为什么是我的进程，这是按照什么标准来选择的，是一次性干掉多个进程，还是一个接着一个杀，保活套路一堆，如何进行进程保活才是比较恰当。同时本文中出现的保活套路有些可能你已经知道，但是有些你可能是第一次听说（1像素Activity，前台服务，账号同步，Jobscheduler,相互唤醒，系统服务捆绑，如果你都了解了，请忽略）。</p>
+<h1 id="1、进程"><a href="#1、进程" class="headerlink" title="1、进程"></a>1、进程</h1><p>每一个Android应用启动后，至少对应一个进程，有的是多个进程，主流软件(QQ，微信，微博等)一般都存在一个应用对应多个进程的情况。</p>
+<p>在Android系统中对进程进行了一个重要程度的划分，从高到低，一共5种。</p>
+<h2 id="1、前台进程-Foreground-process"><a href="#1、前台进程-Foreground-process" class="headerlink" title="1、前台进程(Foreground process)"></a>1、前台进程(Foreground process)</h2><p>场景：  </p>
+<ul>
+<li>某个进程持有一个正在与用户交互的Activity并且该Activity正处于resume的状态。  </li>
+<li>某个进程持有一个Service，并且该Service与用户正在交互的Activity绑定。  </li>
+<li>某个进程持有一个Service，并且该Service调用startForeground()方法使之位于前台运行。  </li>
+<li>某个进程持有一个Service，并且该Service正在执行它的某个生命周期回调方法，比如onCreate()、 onStart()或onDestroy()。  </li>
+</ul>
+<p>某个进程持有一个BroadcastReceiver，并且该BroadcastReceiver正在执行其onReceive()方法。<br>用户正在使用的程序，一般系统是不会杀死前台进程的，除非用户强制停止应用或者系统内存不足等极端情况会杀死。  </p>
+<h2 id="2、可见进程-Visible-process"><a href="#2、可见进程-Visible-process" class="headerlink" title="2、可见进程(Visible process)"></a>2、可见进程(Visible process)</h2><p>场景：</p>
+<ul>
+<li>拥有不在前台、但仍对用户可见的 Activity（已调用 onPause()）。</li>
+<li>拥有绑定到可见（或前台）Activity 的 Service </li>
+</ul>
+<p>用户正在使用，看得到，但是摸不着，没有覆盖到整个屏幕,只有屏幕的一部分可见进程不包含任何前台组件，一般系统也是不会杀死可见进程的，除非要在资源吃紧的情况下，要保持某个或多个前台进程存活。</p>
+<h2 id="3、服务进程-Service-process"><a href="#3、服务进程-Service-process" class="headerlink" title="3、服务进程(Service process)"></a>3、服务进程(Service process)</h2><p>场景：</p>
+<ul>
+<li>某个进程中运行着一个Service且该Service是通过startService()启动的，与用户看见的界面没有直接关联。  </li>
+</ul>
+<p>在内存不足以维持所有前台进程和可见进程同时运行的情况下，服务进程会被杀死。</p>
+<h2 id="4、后台进程-Background-process"><a href="#4、后台进程-Background-process" class="headerlink" title="4、后台进程(Background process)"></a>4、后台进程(Background process)</h2><p>场景：</p>
+<ul>
+<li>在用户按了”back”或者”home”后,程序本身看不到了,但是其实还在运行的程序，比如Activity调用了onPause方法  </li>
+</ul>
+<p>系统可能随时终止它们，回收内存。</p>
+<h2 id="5、空进程-Empty-process"><a href="#5、空进程-Empty-process" class="headerlink" title="5、空进程(Empty process)"></a>5、空进程(Empty process)</h2><p>场景：</p>
+<ul>
+<li>某个进程不包含任何活跃的组件时该进程就会被置为空进程，完全没用,杀了它只有好处没坏处,第一个干它!  </li>
+</ul>
+<h1 id="2、内存阈值"><a href="#2、内存阈值" class="headerlink" title="2、内存阈值"></a>2、内存阈值</h1><p>上面是进程的分类，进程是怎么被杀的呢？系统出于体验和性能上的考虑，app在退到后台时系统并不会真正的kill掉这个进程，而是将其缓存起来。打开的应用越多，后台缓存的进程也越多。在系统内存不足的情况下，系统开始依据自身的一套进程回收机制来判断要kill掉哪些进程，以腾出内存来供给需要的app, 这套杀进程回收内存的机制就叫 Low Memory Killer。那这个不足怎么来规定呢，那就是内存阈值，我们可以使用cat /sys/module/lowmemorykiller/parameters/minfree来查看某个手机的内存阈值。  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpfvm1rzj20ux02kaa2.jpg" alt="">  </p>
+<p>注意这些数字的单位是page. 1 page = 4 kb.上面的六个数字对应的就是(MB): 72,90,108,126,144,180，这些数字也就是对应的内存阀值,内存阈值在不同的手机上不一样，一旦低于该值,Android便开始按顺序关闭进程. 因此Android开始结束优先级最低的空进程，即当可用内存小于180MB(46080*4/1024)。</p>
+<p>读到这里，你或许有一个疑问，假设现在内存不足，空进程都被杀光了，现在要杀后台进程，但是手机中后台进程很多，难道要一次性全部都清理掉？当然不是的，进程是有它的优先级的，这个优先级通过进程的adj值来反映，它是linux内核分配给每个系统进程的一个值，代表进程的优先级，进程回收机制就是根据这个优先级来决定是否进行回收，adj值定义在com.android.server.am.ProcessList类中，这个类路径是${android-sdk-path}\sources\android-23\com\android\server\am\ProcessList.java。oom_adj的值越小，进程的优先级越高，普通进程oom_adj值是大于等于0的，而系统进程oom_adj的值是小于0的，我们可以通过cat /proc/进程id/oom_adj可以看到当前进程的adj值。  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpl4tz9sj20yh05vwgc.jpg" alt="">  </p>
+<p>adj值变成了8，8代表这个进程是属于不活跃的进程，你可以尝试其他情况下，oom_adj值是多少，但是每个手机的厂商可能不一样，oom_adj值主要有这么几个，可以参考一下。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">adj级别</th>
+<th style="text-align:left">值</th>
+<th style="text-align:left">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">UNKNOWN_ADJ</td>
+<td style="text-align:left">16</td>
+<td style="text-align:left">预留的最低级别，一般对于缓存的进程才有可能设置成这个级别</td>
+</tr>
+<tr>
+<td style="text-align:left">CACHED_APP_MAX_ADJ</td>
+<td style="text-align:left">15</td>
+<td style="text-align:left">缓存进程，空进程，在内存不足的情况下就会优先被kill</td>
+</tr>
+<tr>
+<td style="text-align:left">CACHED_APP_MIN_ADJ</td>
+<td style="text-align:left">9</td>
+<td style="text-align:left">缓存进程，也就是空进程</td>
+</tr>
+<tr>
+<td style="text-align:left">SERVICE_B_ADJ</td>
+<td style="text-align:left">8</td>
+<td style="text-align:left">不活跃的进程</td>
+</tr>
+<tr>
+<td style="text-align:left">PREVIOUS_APP_ADJ</td>
+<td style="text-align:left">7</td>
+<td style="text-align:left">切换进程</td>
+</tr>
+<tr>
+<td style="text-align:left">HOME_APP_ADJ</td>
+<td style="text-align:left">6</td>
+<td style="text-align:left">与Home交互的进程</td>
+</tr>
+<tr>
+<td style="text-align:left">SERVICE_ADJ</td>
+<td style="text-align:left">5</td>
+<td style="text-align:left">有Service的进程</td>
+</tr>
+<tr>
+<td style="text-align:left">HEAVY_WEIGHT_APP_ADJ</td>
+<td style="text-align:left">4</td>
+<td style="text-align:left">高权重进程</td>
+</tr>
+<tr>
+<td style="text-align:left">BACKUP_APP_ADJ</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">正在备份的进程</td>
+</tr>
+<tr>
+<td style="text-align:left">PERCEPTIBLE_APP_ADJ</td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">可感知的进程，比如那种播放音乐</td>
+</tr>
+<tr>
+<td style="text-align:left">VISIBLE_APP_ADJ</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">可见进程</td>
+</tr>
+<tr>
+<td style="text-align:left">FOREGROUND_APP_ADJ</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">前台进程</td>
+</tr>
+<tr>
+<td style="text-align:left">PERSISTENT_SERVICE_ADJ</td>
+<td style="text-align:left">-11</td>
+<td style="text-align:left">重要进程</td>
+</tr>
+<tr>
+<td style="text-align:left">PERSISTENT_PROC_ADJ</td>
+<td style="text-align:left">-12</td>
+<td style="text-align:left">核心进程</td>
+</tr>
+<tr>
+<td style="text-align:left">SYSTEM_ADJ</td>
+<td style="text-align:left">-16</td>
+<td style="text-align:left">系统进程</td>
+</tr>
+<tr>
+<td style="text-align:left">NATIVE_ADJ</td>
+<td style="text-align:left">-17</td>
+<td style="text-align:left">系统起的Native进程</td>
+</tr>
+</tbody>
+</table>
+<p>（上表的数字可能在不同系统会有一定的出入）</p>
+<p>根据上面的adj值，其实系统在进程回收跟内存回收类似也是有一套严格的策略，可以自己去了解，大概是这个样子的，<strong>oom_adj越大，占用物理内存越多会被最先kill掉</strong>，OK，那么现在对于进程如何保活这个问题就转化成，如何降低oom_adj的值，以及如何使得我们应用占的内存最少。  </p>
+<h1 id="3、进程保活方案"><a href="#3、进程保活方案" class="headerlink" title="3、进程保活方案"></a>3、进程保活方案</h1><h2 id="1、开启一个像素的Activity"><a href="#1、开启一个像素的Activity" class="headerlink" title="1、开启一个像素的Activity"></a>1、开启一个像素的Activity</h2><p>基本思想，系统一般是不会杀死前台进程的。所以要使得进程常驻，我们只需要在锁屏的时候在本进程开启一个Activity，为了欺骗用户，让这个Activity的大小是1像素，并且透明无切换动画，在开屏幕的时候，把这个Activity关闭掉，所以这个就需要监听系统锁屏广播。  </p>
+<p>如果直接启动一个Activity，当我们按下back键返回桌面的时候，oom_adj的值是8，上面已经提到过，这个进程在资源不够的情况下是容易被回收的。现在造一个一个像素的Activity。  </p>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LiveActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>{
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = LiveActivity.class.getSimpleName();
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">actionToLiveActivity</span><span class="params">(Context pContext)</span> </span>{
+        Intent intent = <span class="keyword">new</span> Intent(pContext, LiveActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        pContext.startActivity(intent);
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>{
+        <span class="keyword">super</span>.onCreate(savedInstanceState);
+        Log.d(TAG, <span class="string">"onCreate"</span>);
+        setContentView(R.layout.activity_live);
+
+        Window window = getWindow();
+        <span class="comment">//放在左上角</span>
+        window.setGravity(Gravity.START | Gravity.TOP);
+        WindowManager.LayoutParams attributes = window.getAttributes();
+        <span class="comment">//宽高设计为1个像素</span>
+        attributes.width = <span class="number">1</span>;
+        attributes.height = <span class="number">1</span>;
+        <span class="comment">//起始坐标</span>
+        attributes.x = <span class="number">0</span>;
+        attributes.y = <span class="number">0</span>;
+        window.setAttributes(attributes);
+
+        ScreenManager.getInstance(<span class="keyword">this</span>).setActivity(<span class="keyword">this</span>);
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>{
+        <span class="keyword">super</span>.onDestroy();
+        Log.d(TAG, <span class="string">"onDestroy"</span>);
+    }
+}
+</code></pre>
+<p>为了做的更隐藏，最好设置一下这个Activity的主题，当然也无所谓了  </p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"LiveStyle"</span>&gt;</span><span class="undefined"></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowIsTranslucent"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowBackground"</span>&gt;</span>@android:color/transparent<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowAnimationStyle"</span>&gt;</span>@null<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowNoTitle"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span>
+<span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span>
+</code></pre>
+<p>在屏幕关闭的时候把LiveActivity启动起来，在开屏的时候把LiveActivity 关闭掉，所以要监听系统锁屏广播，以接口的形式通知MainActivity启动或者关闭LiveActivity。  </p>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ScreenBroadcastListener</span> </span>{
+
+    <span class="keyword">private</span> Context mContext;
+
+    <span class="keyword">private</span> ScreenBroadcastReceiver mScreenReceiver;
+
+    <span class="keyword">private</span> ScreenStateListener mListener;
+
+    <span class="function"><span class="keyword">public</span> <span class="title">ScreenBroadcastListener</span><span class="params">(Context context)</span> </span>{
+        mContext = context.getApplicationContext();
+        mScreenReceiver = <span class="keyword">new</span> ScreenBroadcastReceiver();
+    }
+
+    <span class="class"><span class="keyword">interface</span> <span class="title">ScreenStateListener</span> </span>{
+
+        <span class="function"><span class="keyword">void</span> <span class="title">onScreenOn</span><span class="params">()</span></span>;
+
+        <span class="function"><span class="keyword">void</span> <span class="title">onScreenOff</span><span class="params">()</span></span>;
+    }
+
+    <span class="comment">/**</span>
+<span class="comment">     * screen状态广播接收者</span>
+<span class="comment">     */</span>
+    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ScreenBroadcastReceiver</span> <span class="keyword">extends</span> <span class="title">BroadcastReceiver</span> </span>{
+        <span class="keyword">private</span> String action = <span class="keyword">null</span>;
+
+        <span class="meta">@Override</span>
+        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span> </span>{
+            action = intent.getAction();
+            <span class="keyword">if</span> (Intent.ACTION_SCREEN_ON.equals(action)) { <span class="comment">// 开屏</span>
+                mListener.onScreenOn();
+            } <span class="keyword">else</span> <span class="keyword">if</span> (Intent.ACTION_SCREEN_OFF.equals(action)) { <span class="comment">// 锁屏</span>
+                mListener.onScreenOff();
+            }
+        }
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerListener</span><span class="params">(ScreenStateListener listener)</span> </span>{
+        mListener = listener;
+        registerListener();
+    }
+
+    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">registerListener</span><span class="params">()</span> </span>{
+        IntentFilter filter = <span class="keyword">new</span> IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        mContext.registerReceiver(mScreenReceiver, filter);
+    }
+}
+</code></pre>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ScreenManager</span> </span>{
+
+    <span class="keyword">private</span> Context mContext;
+
+    <span class="keyword">private</span> WeakReference&lt;Activity&gt; mActivityWref;
+
+    <span class="keyword">public</span> <span class="keyword">static</span> ScreenManager gDefualt;
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScreenManager <span class="title">getInstance</span><span class="params">(Context pContext)</span> </span>{
+        <span class="keyword">if</span> (gDefualt == <span class="keyword">null</span>) {
+            gDefualt = <span class="keyword">new</span> ScreenManager(pContext.getApplicationContext());
+        }
+        <span class="keyword">return</span> gDefualt;
+    }
+    <span class="function"><span class="keyword">private</span> <span class="title">ScreenManager</span><span class="params">(Context pContext)</span> </span>{
+        <span class="keyword">this</span>.mContext = pContext;
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setActivity</span><span class="params">(Activity pActivity)</span> </span>{
+        mActivityWref = <span class="keyword">new</span> WeakReference&lt;Activity&gt;(pActivity);
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startActivity</span><span class="params">()</span> </span>{
+            LiveActivity.actionToLiveActivity(mContext);
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">finishActivity</span><span class="params">()</span> </span>{
+        <span class="comment">//结束掉LiveActivity</span>
+        <span class="keyword">if</span> (mActivityWref != <span class="keyword">null</span>) {
+            Activity activity = mActivityWref.get();
+            <span class="keyword">if</span> (activity != <span class="keyword">null</span>) {
+                activity.finish();
+            }
+        }
+    }
+}
+</code></pre>
+<p>现在MainActivity改成如下  </p>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>{
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>{
+        <span class="keyword">super</span>.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        <span class="keyword">final</span> ScreenManager screenManager = ScreenManager.getInstance(MainActivity.<span class="keyword">this</span>);
+        ScreenBroadcastListener listener = <span class="keyword">new</span> ScreenBroadcastListener(<span class="keyword">this</span>);
+         listener.registerListener(<span class="keyword">new</span> ScreenBroadcastListener.ScreenStateListener() {
+            <span class="meta">@Override</span>
+            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScreenOn</span><span class="params">()</span> </span>{
+                screenManager.finishActivity();
+            }
+
+            <span class="meta">@Override</span>
+            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScreenOff</span><span class="params">()</span> </span>{
+                screenManager.startActivity();
+            }
+        });
+    }
+}
+</code></pre>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>喜欢的话，请我喝杯咖啡吧<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fwzc0uio8cj209c092q3q.jpg">
+                      <span class="reward-type">支付宝</span>
+                    </div>
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fwzc0udzzbj2091092q3p.jpg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -207,7 +532,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -220,486 +545,104 @@
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2018/12/24/serviceKeepAlive/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/12/20/screenLockActivity/" class="archive-article-date">
-  	<time datetime="2018-12-20T06:55:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-20</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2018/12/20/screenLockActivity/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Android锁屏Activity实现</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/12/20/screenLockActivity/">Android锁屏Activity实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">锁屏</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/11/10/permissionCheck/" class="archive-article-date">
-  	<time datetime="2018-11-10T01:54:44.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-10</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/11/10/permissionCheck/">Android权限检查(版本适配)</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">权限</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/11/07/testFunction/" class="archive-article-date">
-  	<time datetime="2018-11-07T02:21:23.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-07</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/11/07/testFunction/">软件测试方法</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">总结</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/总结//" class="article-tag-list-link color3">总结</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/11/05/pythonScrapy/" class="archive-article-date">
-  	<time datetime="2018-11-05T02:47:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-05</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/11/05/pythonScrapy/">Python爬虫</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Python</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">爬虫</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Python//" class="article-tag-list-link color2">Python</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/10/15/HuaweiRegister2many/" class="archive-article-date">
-  	<time datetime="2018-10-15T06:48:08.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-15</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/10/15/HuaweiRegister2many/">华为手机 Register too many Broadcast Receivers 问题解决方法</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">适配</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/10/11/AndroidPFeature/" class="archive-article-date">
-  	<time datetime="2018-10-11T08:22:46.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-11</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/10/11/AndroidPFeature/">Android P 版本适配</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Android-P</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/10/10/ViewDetailed/" class="archive-article-date">
-  	<time datetime="2018-10-10T01:42:16.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-10-10</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/10/10/ViewDetailed/">常用View与优化</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">view</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/09/30/AndroidStrageWays/" class="archive-article-date">
-  	<time datetime="2018-09-30T07:31:55.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-30</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/09/30/AndroidStrageWays/">Android四种数据存储方式</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/09/29/AndroidTotalsink/" class="archive-article-date">
-  	<time datetime="2018-09-29T07:23:45.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/09/29/AndroidTotalsink/">我的Android学习路径</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">总结</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -722,8 +665,8 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: true,

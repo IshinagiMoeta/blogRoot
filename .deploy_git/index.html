@@ -164,6 +164,386 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-serviceKeepAlive" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/12/24/serviceKeepAlive/">Android的Service保活</a>
+    </h1>
+  
+
+        
+        <a href="/2018/12/24/serviceKeepAlive/" class="archive-article-date">
+  	<time datetime="2018-12-24T03:44:53.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-24</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在Android市场上，一直存在着一批批的软件，你即使在后台杀死，清理后台，也没法将他们彻底杀死，他们会用各种方式来给你发推送，通知，甚至突然跳出来一个界面。  </p>
+<p>这些应用都使用了不同的方式，却达到了相同的结果。在成为开发以前，我是很讨厌这种行为的，但是真正成为了一个Android开发，在满足公司需求的过程中，我了解到了这也是我们开发的一种无奈之举。 </p>
+<p>如果你要实现某种功能，需要常驻进程，或者需要不让自己的进程被杀死回收，那么这篇博文可能可以给你一些帮助。  </p>
+<p>在此之前，有几个问题需要思考，系统为什么会杀掉进程，杀的为什么是我的进程，这是按照什么标准来选择的，是一次性干掉多个进程，还是一个接着一个杀，保活套路一堆，如何进行进程保活才是比较恰当。同时本文中出现的保活套路有些可能你已经知道，但是有些你可能是第一次听说（1像素Activity，前台服务，账号同步，Jobscheduler,相互唤醒，系统服务捆绑，如果你都了解了，请忽略）。</p>
+<h1 id="1、进程"><a href="#1、进程" class="headerlink" title="1、进程"></a>1、进程</h1><p>每一个Android应用启动后，至少对应一个进程，有的是多个进程，主流软件(QQ，微信，微博等)一般都存在一个应用对应多个进程的情况。</p>
+<p>在Android系统中对进程进行了一个重要程度的划分，从高到低，一共5种。</p>
+<h2 id="1、前台进程-Foreground-process"><a href="#1、前台进程-Foreground-process" class="headerlink" title="1、前台进程(Foreground process)"></a>1、前台进程(Foreground process)</h2><p>场景：  </p>
+<ul>
+<li>某个进程持有一个正在与用户交互的Activity并且该Activity正处于resume的状态。  </li>
+<li>某个进程持有一个Service，并且该Service与用户正在交互的Activity绑定。  </li>
+<li>某个进程持有一个Service，并且该Service调用startForeground()方法使之位于前台运行。  </li>
+<li>某个进程持有一个Service，并且该Service正在执行它的某个生命周期回调方法，比如onCreate()、 onStart()或onDestroy()。  </li>
+</ul>
+<p>某个进程持有一个BroadcastReceiver，并且该BroadcastReceiver正在执行其onReceive()方法。<br>用户正在使用的程序，一般系统是不会杀死前台进程的，除非用户强制停止应用或者系统内存不足等极端情况会杀死。  </p>
+<h2 id="2、可见进程-Visible-process"><a href="#2、可见进程-Visible-process" class="headerlink" title="2、可见进程(Visible process)"></a>2、可见进程(Visible process)</h2><p>场景：</p>
+<ul>
+<li>拥有不在前台、但仍对用户可见的 Activity（已调用 onPause()）。</li>
+<li>拥有绑定到可见（或前台）Activity 的 Service </li>
+</ul>
+<p>用户正在使用，看得到，但是摸不着，没有覆盖到整个屏幕,只有屏幕的一部分可见进程不包含任何前台组件，一般系统也是不会杀死可见进程的，除非要在资源吃紧的情况下，要保持某个或多个前台进程存活。</p>
+<h2 id="3、服务进程-Service-process"><a href="#3、服务进程-Service-process" class="headerlink" title="3、服务进程(Service process)"></a>3、服务进程(Service process)</h2><p>场景：</p>
+<ul>
+<li>某个进程中运行着一个Service且该Service是通过startService()启动的，与用户看见的界面没有直接关联。  </li>
+</ul>
+<p>在内存不足以维持所有前台进程和可见进程同时运行的情况下，服务进程会被杀死。</p>
+<h2 id="4、后台进程-Background-process"><a href="#4、后台进程-Background-process" class="headerlink" title="4、后台进程(Background process)"></a>4、后台进程(Background process)</h2><p>场景：</p>
+<ul>
+<li>在用户按了”back”或者”home”后,程序本身看不到了,但是其实还在运行的程序，比如Activity调用了onPause方法  </li>
+</ul>
+<p>系统可能随时终止它们，回收内存。</p>
+<h2 id="5、空进程-Empty-process"><a href="#5、空进程-Empty-process" class="headerlink" title="5、空进程(Empty process)"></a>5、空进程(Empty process)</h2><p>场景：</p>
+<ul>
+<li>某个进程不包含任何活跃的组件时该进程就会被置为空进程，完全没用,杀了它只有好处没坏处,第一个干它!  </li>
+</ul>
+<h1 id="2、内存阈值"><a href="#2、内存阈值" class="headerlink" title="2、内存阈值"></a>2、内存阈值</h1><p>上面是进程的分类，进程是怎么被杀的呢？系统出于体验和性能上的考虑，app在退到后台时系统并不会真正的kill掉这个进程，而是将其缓存起来。打开的应用越多，后台缓存的进程也越多。在系统内存不足的情况下，系统开始依据自身的一套进程回收机制来判断要kill掉哪些进程，以腾出内存来供给需要的app, 这套杀进程回收内存的机制就叫 Low Memory Killer。那这个不足怎么来规定呢，那就是内存阈值，我们可以使用cat /sys/module/lowmemorykiller/parameters/minfree来查看某个手机的内存阈值。  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpfvm1rzj20ux02kaa2.jpg" alt="">  </p>
+<p>注意这些数字的单位是page. 1 page = 4 kb.上面的六个数字对应的就是(MB): 72,90,108,126,144,180，这些数字也就是对应的内存阀值,内存阈值在不同的手机上不一样，一旦低于该值,Android便开始按顺序关闭进程. 因此Android开始结束优先级最低的空进程，即当可用内存小于180MB(46080*4/1024)。</p>
+<p>读到这里，你或许有一个疑问，假设现在内存不足，空进程都被杀光了，现在要杀后台进程，但是手机中后台进程很多，难道要一次性全部都清理掉？当然不是的，进程是有它的优先级的，这个优先级通过进程的adj值来反映，它是linux内核分配给每个系统进程的一个值，代表进程的优先级，进程回收机制就是根据这个优先级来决定是否进行回收，adj值定义在com.android.server.am.ProcessList类中，这个类路径是${android-sdk-path}\sources\android-23\com\android\server\am\ProcessList.java。oom_adj的值越小，进程的优先级越高，普通进程oom_adj值是大于等于0的，而系统进程oom_adj的值是小于0的，我们可以通过cat /proc/进程id/oom_adj可以看到当前进程的adj值。  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpl4tz9sj20yh05vwgc.jpg" alt="">  </p>
+<p>adj值变成了8，8代表这个进程是属于不活跃的进程，你可以尝试其他情况下，oom_adj值是多少，但是每个手机的厂商可能不一样，oom_adj值主要有这么几个，可以参考一下。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">adj级别</th>
+<th style="text-align:left">值</th>
+<th style="text-align:left">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">UNKNOWN_ADJ</td>
+<td style="text-align:left">16</td>
+<td style="text-align:left">预留的最低级别，一般对于缓存的进程才有可能设置成这个级别</td>
+</tr>
+<tr>
+<td style="text-align:left">CACHED_APP_MAX_ADJ</td>
+<td style="text-align:left">15</td>
+<td style="text-align:left">缓存进程，空进程，在内存不足的情况下就会优先被kill</td>
+</tr>
+<tr>
+<td style="text-align:left">CACHED_APP_MIN_ADJ</td>
+<td style="text-align:left">9</td>
+<td style="text-align:left">缓存进程，也就是空进程</td>
+</tr>
+<tr>
+<td style="text-align:left">SERVICE_B_ADJ</td>
+<td style="text-align:left">8</td>
+<td style="text-align:left">不活跃的进程</td>
+</tr>
+<tr>
+<td style="text-align:left">PREVIOUS_APP_ADJ</td>
+<td style="text-align:left">7</td>
+<td style="text-align:left">切换进程</td>
+</tr>
+<tr>
+<td style="text-align:left">HOME_APP_ADJ</td>
+<td style="text-align:left">6</td>
+<td style="text-align:left">与Home交互的进程</td>
+</tr>
+<tr>
+<td style="text-align:left">SERVICE_ADJ</td>
+<td style="text-align:left">5</td>
+<td style="text-align:left">有Service的进程</td>
+</tr>
+<tr>
+<td style="text-align:left">HEAVY_WEIGHT_APP_ADJ</td>
+<td style="text-align:left">4</td>
+<td style="text-align:left">高权重进程</td>
+</tr>
+<tr>
+<td style="text-align:left">BACKUP_APP_ADJ</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">正在备份的进程</td>
+</tr>
+<tr>
+<td style="text-align:left">PERCEPTIBLE_APP_ADJ</td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">可感知的进程，比如那种播放音乐</td>
+</tr>
+<tr>
+<td style="text-align:left">VISIBLE_APP_ADJ</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">可见进程</td>
+</tr>
+<tr>
+<td style="text-align:left">FOREGROUND_APP_ADJ</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">前台进程</td>
+</tr>
+<tr>
+<td style="text-align:left">PERSISTENT_SERVICE_ADJ</td>
+<td style="text-align:left">-11</td>
+<td style="text-align:left">重要进程</td>
+</tr>
+<tr>
+<td style="text-align:left">PERSISTENT_PROC_ADJ</td>
+<td style="text-align:left">-12</td>
+<td style="text-align:left">核心进程</td>
+</tr>
+<tr>
+<td style="text-align:left">SYSTEM_ADJ</td>
+<td style="text-align:left">-16</td>
+<td style="text-align:left">系统进程</td>
+</tr>
+<tr>
+<td style="text-align:left">NATIVE_ADJ</td>
+<td style="text-align:left">-17</td>
+<td style="text-align:left">系统起的Native进程</td>
+</tr>
+</tbody>
+</table>
+<p>（上表的数字可能在不同系统会有一定的出入）</p>
+<p>根据上面的adj值，其实系统在进程回收跟内存回收类似也是有一套严格的策略，可以自己去了解，大概是这个样子的，<strong>oom_adj越大，占用物理内存越多会被最先kill掉</strong>，OK，那么现在对于进程如何保活这个问题就转化成，如何降低oom_adj的值，以及如何使得我们应用占的内存最少。  </p>
+<h1 id="3、进程保活方案"><a href="#3、进程保活方案" class="headerlink" title="3、进程保活方案"></a>3、进程保活方案</h1><h2 id="1、开启一个像素的Activity"><a href="#1、开启一个像素的Activity" class="headerlink" title="1、开启一个像素的Activity"></a>1、开启一个像素的Activity</h2><p>基本思想，系统一般是不会杀死前台进程的。所以要使得进程常驻，我们只需要在锁屏的时候在本进程开启一个Activity，为了欺骗用户，让这个Activity的大小是1像素，并且透明无切换动画，在开屏幕的时候，把这个Activity关闭掉，所以这个就需要监听系统锁屏广播。  </p>
+<p>如果直接启动一个Activity，当我们按下back键返回桌面的时候，oom_adj的值是8，上面已经提到过，这个进程在资源不够的情况下是容易被回收的。现在造一个一个像素的Activity。  </p>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LiveActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>{
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = LiveActivity.class.getSimpleName();
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">actionToLiveActivity</span><span class="params">(Context pContext)</span> </span>{
+        Intent intent = <span class="keyword">new</span> Intent(pContext, LiveActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        pContext.startActivity(intent);
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>{
+        <span class="keyword">super</span>.onCreate(savedInstanceState);
+        Log.d(TAG, <span class="string">"onCreate"</span>);
+        setContentView(R.layout.activity_live);
+
+        Window window = getWindow();
+        <span class="comment">//放在左上角</span>
+        window.setGravity(Gravity.START | Gravity.TOP);
+        WindowManager.LayoutParams attributes = window.getAttributes();
+        <span class="comment">//宽高设计为1个像素</span>
+        attributes.width = <span class="number">1</span>;
+        attributes.height = <span class="number">1</span>;
+        <span class="comment">//起始坐标</span>
+        attributes.x = <span class="number">0</span>;
+        attributes.y = <span class="number">0</span>;
+        window.setAttributes(attributes);
+
+        ScreenManager.getInstance(<span class="keyword">this</span>).setActivity(<span class="keyword">this</span>);
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>{
+        <span class="keyword">super</span>.onDestroy();
+        Log.d(TAG, <span class="string">"onDestroy"</span>);
+    }
+}
+</code></pre>
+<p>为了做的更隐藏，最好设置一下这个Activity的主题，当然也无所谓了  </p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">style</span> <span class="attr">name</span>=<span class="string">"LiveStyle"</span>&gt;</span><span class="undefined"></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowIsTranslucent"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowBackground"</span>&gt;</span>@android:color/transparent<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowAnimationStyle"</span>&gt;</span>@null<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span>
+<span class="xml">    <span class="tag">&lt;<span class="name">item</span> <span class="attr">name</span>=<span class="string">"android:windowNoTitle"</span>&gt;</span>true<span class="tag">&lt;/<span class="name">item</span>&gt;</span></span>
+<span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span>
+</code></pre>
+<p>在屏幕关闭的时候把LiveActivity启动起来，在开屏的时候把LiveActivity 关闭掉，所以要监听系统锁屏广播，以接口的形式通知MainActivity启动或者关闭LiveActivity。  </p>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ScreenBroadcastListener</span> </span>{
+
+    <span class="keyword">private</span> Context mContext;
+
+    <span class="keyword">private</span> ScreenBroadcastReceiver mScreenReceiver;
+
+    <span class="keyword">private</span> ScreenStateListener mListener;
+
+    <span class="function"><span class="keyword">public</span> <span class="title">ScreenBroadcastListener</span><span class="params">(Context context)</span> </span>{
+        mContext = context.getApplicationContext();
+        mScreenReceiver = <span class="keyword">new</span> ScreenBroadcastReceiver();
+    }
+
+    <span class="class"><span class="keyword">interface</span> <span class="title">ScreenStateListener</span> </span>{
+
+        <span class="function"><span class="keyword">void</span> <span class="title">onScreenOn</span><span class="params">()</span></span>;
+
+        <span class="function"><span class="keyword">void</span> <span class="title">onScreenOff</span><span class="params">()</span></span>;
+    }
+
+    <span class="comment">/**</span>
+<span class="comment">     * screen状态广播接收者</span>
+<span class="comment">     */</span>
+    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ScreenBroadcastReceiver</span> <span class="keyword">extends</span> <span class="title">BroadcastReceiver</span> </span>{
+        <span class="keyword">private</span> String action = <span class="keyword">null</span>;
+
+        <span class="meta">@Override</span>
+        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span> </span>{
+            action = intent.getAction();
+            <span class="keyword">if</span> (Intent.ACTION_SCREEN_ON.equals(action)) { <span class="comment">// 开屏</span>
+                mListener.onScreenOn();
+            } <span class="keyword">else</span> <span class="keyword">if</span> (Intent.ACTION_SCREEN_OFF.equals(action)) { <span class="comment">// 锁屏</span>
+                mListener.onScreenOff();
+            }
+        }
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerListener</span><span class="params">(ScreenStateListener listener)</span> </span>{
+        mListener = listener;
+        registerListener();
+    }
+
+    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">registerListener</span><span class="params">()</span> </span>{
+        IntentFilter filter = <span class="keyword">new</span> IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        mContext.registerReceiver(mScreenReceiver, filter);
+    }
+}
+</code></pre>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ScreenManager</span> </span>{
+
+    <span class="keyword">private</span> Context mContext;
+
+    <span class="keyword">private</span> WeakReference&lt;Activity&gt; mActivityWref;
+
+    <span class="keyword">public</span> <span class="keyword">static</span> ScreenManager gDefualt;
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScreenManager <span class="title">getInstance</span><span class="params">(Context pContext)</span> </span>{
+        <span class="keyword">if</span> (gDefualt == <span class="keyword">null</span>) {
+            gDefualt = <span class="keyword">new</span> ScreenManager(pContext.getApplicationContext());
+        }
+        <span class="keyword">return</span> gDefualt;
+    }
+    <span class="function"><span class="keyword">private</span> <span class="title">ScreenManager</span><span class="params">(Context pContext)</span> </span>{
+        <span class="keyword">this</span>.mContext = pContext;
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setActivity</span><span class="params">(Activity pActivity)</span> </span>{
+        mActivityWref = <span class="keyword">new</span> WeakReference&lt;Activity&gt;(pActivity);
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startActivity</span><span class="params">()</span> </span>{
+            LiveActivity.actionToLiveActivity(mContext);
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">finishActivity</span><span class="params">()</span> </span>{
+        <span class="comment">//结束掉LiveActivity</span>
+        <span class="keyword">if</span> (mActivityWref != <span class="keyword">null</span>) {
+            Activity activity = mActivityWref.get();
+            <span class="keyword">if</span> (activity != <span class="keyword">null</span>) {
+                activity.finish();
+            }
+        }
+    }
+}
+</code></pre>
+<p>现在MainActivity改成如下  </p>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>{
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>{
+        <span class="keyword">super</span>.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        <span class="keyword">final</span> ScreenManager screenManager = ScreenManager.getInstance(MainActivity.<span class="keyword">this</span>);
+        ScreenBroadcastListener listener = <span class="keyword">new</span> ScreenBroadcastListener(<span class="keyword">this</span>);
+         listener.registerListener(<span class="keyword">new</span> ScreenBroadcastListener.ScreenStateListener() {
+            <span class="meta">@Override</span>
+            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScreenOn</span><span class="params">()</span> </span>{
+                screenManager.finishActivity();
+            }
+
+            <span class="meta">@Override</span>
+            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScreenOff</span><span class="params">()</span> </span>{
+                screenManager.startActivity();
+            }
+        });
+    }
+}
+</code></pre>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Service</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/12/24/serviceKeepAlive/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-screenLockActivity" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
   <div class="article-inner">
     
@@ -278,8 +658,36 @@ keyguardLock.disableKeyguard();
 <p>而第二个标记的问题在于，Google 认为导航栏对于用户来说是十分重要的，所以只会短暂隐藏导航栏。一旦用户做其他操作，例如点击一次屏幕，导航栏就会马上被重新调出。这样的设定对于看图软件，视频软件等等没什么大问题，但是对于游戏之类用户需要经常点击屏幕的 App，那就几乎是悲剧了——这也是为什么你在 Android 4.4 之前找不到什么全屏模式会自动隐藏导航栏的应用。</p>
 <p>Android 4.4 之后加入的Immersive Full-Screen Mode 允许用户在应用全屏的情况下，通过在原有的状态栏/导航栏区域内做向内滑动的手势来实现短暂调出状态栏和导航栏的操作，且不会影响应用的正常全屏，短暂调出的状态栏和导航栏会呈半透明状态，并且在一段时间内或者用户与应用内元素进行互动的情况下自动隐藏，沉浸模式的四种状态如下图。</p>
 <p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fydb0ji2oxj20ix090q4o.jpg" alt=""></p>
-<p>突然懒一下，剩下的下周补完</p>
-<h1 id="Service保活"><a href="#Service保活" class="headerlink" title="Service保活"></a>Service保活</h1><h1 id="版本适配机型适配"><a href="#版本适配机型适配" class="headerlink" title="版本适配机型适配"></a>版本适配机型适配</h1><h1 id="冲突处理"><a href="#冲突处理" class="headerlink" title="冲突处理"></a>冲突处理</h1>
+<p>这里提供一个将状态栏设置为全透明的方法。  </p>
+<pre><code class="java"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">transparencyBar</span><span class="params">(Activity activity)</span> </span>{
+    <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP) {
+        Window window = activity.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        <span class="keyword">int</span> uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+         window.getDecorView().setSystemUiVisibility(uiOptions);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(Color.TRANSPARENT);
+    } <span class="keyword">else</span> <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.KITKAT) {
+        activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        <span class="comment">//隐藏虚拟键盘</span>
+        View decorView = activity.getWindow().getDecorView();
+        <span class="keyword">int</span> uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        decorView.setSystemUiVisibility(uiOptions);
+    } <span class="keyword">else</span> <span class="keyword">if</span> (Build.VERSION.SDK_INT &lt; <span class="number">19</span>) {
+        View v = activity.getWindow().getDecorView();
+        v.setSystemUiVisibility(View.GONE);
+    }
+}
+</code></pre>
+<p>可以将状态栏设置完全透明，并且在有虚拟按键的情况下也可以隐藏虚拟按键。</p>
+<h1 id="Service保活"><a href="#Service保活" class="headerlink" title="Service保活"></a>Service保活</h1><p>作为一个锁屏APP，首先你得尽量做到不被用户一不小心杀死，才能够更多次的出现，所以要做到锁屏服务的保活也是十分重要的。关于Service的保活，我写了一篇单独的博客，可以在我的网页里检索一下。</p>
+<h1 id="版本适配机型适配"><a href="#版本适配机型适配" class="headerlink" title="版本适配机型适配"></a>版本适配机型适配</h1><p>因为各个手机的ROM不同，系统版本不同，所以需要做一些特殊处理，比如说小米想要授权应用锁屏，是需要引导用户手动开启的，还有VIVO上也有同样的问题。对于华为手机，在6.0以上和6.0一下需要做不同的处理，这也是要注意的地方。</p>
+<h1 id="冲突处理"><a href="#冲突处理" class="headerlink" title="冲突处理"></a>冲突处理</h1><p>所谓冲突，则是如果一台手机存在多个锁屏APP，同时开启了锁屏界面的权限的话，会出现不同应用争抢同一个锁屏界面显示的情况，并且该情况还没有特别好的解决办法，暂时没法处理。等待后续迭代解决。</p>
+
       
 
       
@@ -1583,19 +1991,11 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">适配</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">总结</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">锁屏</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">view</a>
+                <a href="javascript:void(0)" class="js-tag color3">适配</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -1607,7 +2007,19 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Service</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">view</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">Android-P</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">锁屏</a>
               </li>
              
               <li class="article-tag-list-item">

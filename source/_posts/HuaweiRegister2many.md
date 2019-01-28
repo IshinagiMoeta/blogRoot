@@ -1,8 +1,8 @@
 ---
-title: 华为手机 Register too many Broadcast Receivers 问题解决方法  
-date: 2018-10-15 14:48:08 
-tags: [Android,适配]
-categories: Android
+title: 华为手机 Register too many Broadcast Receivers 问题解决方法   
+date: 2018-10-15 14:48:08  
+tags: [Android,适配]  
+categories: Android  
 
 ---
 最近在集成Vungle视频广告的过程中遇到了一个蛮奇怪的问题，是一个会导致崩溃的Bug，当App运行到一定的时间后，突然会自动闪退。毫无预兆，也没有打印我设置的任何可能导致crash的log。很是奇怪，只能去翻25M的日志报告。最后找到了这么一段东西。  

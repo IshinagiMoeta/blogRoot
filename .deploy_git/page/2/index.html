@@ -6,13 +6,13 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: 爬虫 | Mika日常</title>
+  <title>Mika日常</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="记录咪咔咔和她的哥哥姐姐的日常">
 <meta name="keywords" content="猫;Android">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Mika日常">
-<meta property="og:url" content="http://yoursite.com/tags/爬虫/index.html">
+<meta property="og:url" content="http://yoursite.com/page/2/index.html">
 <meta property="og:site_name" content="Mika日常">
 <meta property="og:description" content="记录咪咔咔和她的哥哥姐姐的日常">
 <meta property="og:locale" content="zh-Hans">
@@ -164,73 +164,154 @@
           <div id="js-content" class="content-ll">
             
   
-  
+    <article id="post-AndroidTotalsink" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/11/05/pythonScrapy/" class="archive-article-date">
-  	<time datetime="2018-11-05T02:47:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-05</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
     <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/11/05/pythonScrapy/">Python爬虫</a>
+      <a class="article-title" href="/2018/09/29/AndroidTotalsink/">我的Android学习路径</a>
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2018/09/29/AndroidTotalsink/" class="archive-article-date">
+  	<time datetime="2018-09-29T07:23:45.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这篇博客主要是为了总结自己在学习Android过程中得到的经验，同时也算是自己对自己学习的知识的一个系统化梳理，因为博主的技术能力有限，而且时常脑抽，如果这篇文章能够帮到什么人的话，那我要提醒你小心文章中的坑23333。</p>
+<h1 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h1><hr>
+<p>本篇文章所说的Android开发大部分为<strong>应用层</strong>所涉及到的知识，关于Android系统全貌，由于博主也没有研究透彻，所以也没法系统性的整理，但是文中可能会出现一些底层知识。<br>本文主要涉及的是下图中Application的知识，同时可能会含有一些博主对Framework层的理解。<br><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fvqjji5kh4j20k70go131.jpg" alt=""></p>
+<p>如果有读者对Android全貌有兴趣，所以这里推荐一篇博主认为写的比较详细的说明Android系统的文章<br><a href="http://gityuan.com/android/#syscall--jni" title="http://gityuan.com/android/#syscall--jni" target="_blank" rel="noopener">Android系统开篇</a>  </p>
+<h1 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h1><hr>
+<p>工欲善其事，必先利其器  </p>
+<h2 id="一、硬件"><a href="#一、硬件" class="headerlink" title="一、硬件"></a>一、硬件</h2><ul>
+<li><strong>电脑</strong>：没有推荐<br>博主从入门到现在一直使用的是Windows系统开发，Mac系统虽然用过，但是一段时间后又换回来了。并不是说Mac系统不好，但是博主除了Android之外，还喜欢捣鼓一些其他的黑科技，收集一些看似能够提升效率的工具，Mac在这个上面相比Windows有些劣势，但是不得不说，Mac的开发效率是真的高，Google的员工都在用Mac。不过这个主要是看人吧，毕竟真正的程序员网吧也能敲代码，就和真正的作家网吧也能码字一样。  </li>
+<li><strong>测试用手机</strong>：有条件的强烈推荐小米<br>Android开发必然会需要调试自己开发的程序，在入门的时候，可以使用模拟器啥的（也推荐一下模拟器好了<a href="https://juejin.im/post/5aec3fa96fb9a07aca7a0961" title="Genymotion" target="_blank" rel="noopener">Genymotion</a>），但是开发的越久…..<br>各位，模拟器的能力是有极限的<br>我从短暂的开发过程当中学到一件事……<br>越是各种测试,就越会发现模拟器的能力是有极限的……<br>除非超越模拟器。<br>所以这里我推荐大家有条件的买个真机，几百块的就行，Android系统最好是6.0的，这个涉及到版本适配问题，之后会详细说明。<br>还有就是博主是米粉，不是其他原因，单纯的是因为在开发过程中，遇到过各种机型适配问题后发现，国产机中，VO两家问题最多，华为其次，小米最少。(顺便三星是真的垃圾，三星的拍照接口和大家都不一样，问题很多。  </li>
+</ul>
+<h2 id="二、开发环境"><a href="#二、开发环境" class="headerlink" title="二、开发环境"></a>二、开发环境</h2><p>主流的Android开发环境主要有三种  </p>
+<ul>
+<li>Android Studio<br>Android Studio(以下简称AS)，AS是Google推出，专门为Android“量身订做”的，是Google大力支持的一款基于IntelliJ idea改造的IDE，google的工程师团队一直在不断完善，现在AS相比其他Android开发软件（Eclipse我并不是针对你，我只是想说：）具有的优点有：速度更快，更加智能，整合了Gradle，具有强大的UI编辑器，内置终端模拟器，海量第三方插件，完美整合各个版本控制，本身UI更美观。  </li>
+<li>Eclipse+ADT：<br>先说明一点，Android团队已经停止了对Eclipse的ADT的更新，现在ADT的更新是由Eclipse团队完成的，所以，你如果使用Eclipse开发的话，没法第一时间体验最新Android版本，同时Eclipse会逐渐被淘汰，不过现在任有一定数量的公司在使用Eclipse开发。</li>
+<li>IntelliJ IDEA：<br>虽然说AS是基于IntelliJ idea改造的，但是现在AS和IntelliJ idea在Android开发上可以说是天差地别，AS是专门针对Android开发的IDE，而IntelliJ idea属于多语言开发的IDE。Google团队将NDK(Native development kit)从Android Support Plugin中抽出了，如果使用IntelliJ idea则无法使用NDK。并且之后可能会出现更多的工具只能在AS中使用，而不能在其他应用中使用。  </li>
+</ul>
+<p>综上所述，力推Android Studio作为Android入门开发软件。  </p>
+<h2 id="三、翻墙"><a href="#三、翻墙" class="headerlink" title="三、翻墙"></a>三、翻墙</h2><p>国内的网络环境对Android开发及其不友好，谷歌被墙在门外，导致我们如果不翻墙的话，就根本没法获取官方提供的资源和文档，同时AS下载的也是墙外资源。<br>作为一名程序员，翻墙并习惯使用Google解决问题，会发现一个新世界。<del>（面向 Google/Stack Overflow 编程）</del><br>这里推荐使用Shadowsocks/ShadowsocksR来翻墙，教程如下 <a href="https://www.textarea.com/ExpectoPatronum/shiyong-shadowsocks-kexue-shangwang-265/" title="使用shadowsocks科学上网" target="_blank" rel="noopener">使用shadowsocks科学上网</a> ，这个教程中需要花钱的地方只有买服务器，自建翻墙服务，如果懒得去自建服务器的话，可以使用Shadowsocks自带的免费服务器爬墙，也可以选择购买Shadowsocks的付费服务，几百块钱换一年可以翻墙的机会，绝对不亏。   </p>
+<h1 id="Google官方教程"><a href="#Google官方教程" class="headerlink" title="Google官方教程"></a>Google官方教程</h1><hr>
+<p><a href="https://developer.android.com/guide/" target="_blank" rel="noopener">谷歌官方教程</a><br><a href="http://hukai.me/android-training-course-in-chinese/index.html" target="_blank" rel="noopener">国内汉化教程</a><br>官方提供的东西虽然全面，但是因为Android系统本身比较复杂，所以刚入门的新手可能看起来反而比较迷茫，可以作为工具书来查阅，入门学习的话，并不是很推荐。  </p>
+<h1 id="Android基础知识"><a href="#Android基础知识" class="headerlink" title="Android基础知识"></a>Android基础知识</h1><hr>
+<p>以下会列出博主自己在学习过程中遇到的，认为比较好的其他博客  </p>
+<p>首先要致敬<strong>stormzhang</strong>大神的<a href="http://stormzhang.com/android/2014/07/07/learn-android-from-rookie/" target="_blank" rel="noopener">Android学习之路</a>。</p>
+<p>以下干货：  </p>
+<h2 id="零、语言基础"><a href="#零、语言基础" class="headerlink" title="零、语言基础"></a>零、语言基础</h2><p>目前Android开发最热门的语言是<strong>Java</strong>，同时Google团队也推出了<strong>kotlin</strong>，如果你是个想要在国内找一份用来谋生工作的，没有工作经验，没有JAVA经验的人。不要使用kotlin入门，就我所知，目前国内招Android开发的公司，90%使用的是Java作为开发语言<del>（而且就算你Android入门失败了，你还可以用Java去找工作）</del>。如果是想要提升自己，或者想要学点新知识来充电的话，kotlin其实是一个很不错的语言。<br>所以学好Java基础很重要  </p>
+<ul>
+<li>Java知识：<br>博主入门的参考书：<a href="https://book.douban.com/subject/3640322/" target="_blank" rel="noopener">大话Java</a>  </li>
+<li>Java设计模式：<br><a href="https://book.douban.com/subject/2334288/" target="_blank" rel="noopener">大话设计模式</a></li>
+</ul>
+<p>本文并不推荐直接买书，这两本书在网上资源已经流传了很久了，大家可以下载看看，等有能力之后可以再补票，如果你比较习惯看实体书，那直接买也无所谓，反正这两本书都很经典，值得购买。</p>
+<h2 id="一、Android基本知识"><a href="#一、Android基本知识" class="headerlink" title="一、Android基本知识"></a>一、Android基本知识</h2><p>写给出工具贴，本帖只用来查找你在阅读下文中遇到的不理解的知识点的扩展，还有对博主说的不完全的知识点的补充。<a href="https://juejin.im/post/587dbaf9570c3522010e400e" target="_blank" rel="noopener">Android 知识梳理</a>  </p>
+<p>这里会列出Android开发的基本知识点，和对应博客   </p>
+<ul>
+<li><a href="https://www.cnblogs.com/bravestarrhu/archive/2012/05/02/2479461.html" target="_blank" rel="noopener">Android四大基本组件</a><ul>
+<li><a href="https://www.jianshu.com/p/d4d677727a0a" target="_blank" rel="noopener">Activity</a></li>
+<li><a href="https://www.jianshu.com/p/b44e2620167f" target="_blank" rel="noopener">Service</a></li>
+<li><a href="http://www.cnblogs.com/linjiqin/archive/2011/05/28/2061396.html" target="_blank" rel="noopener">Content Provider</a></li>
+<li><a href="https://www.jianshu.com/p/5459c653b34a" target="_blank" rel="noopener">Broadcast Receiver</a></li>
+</ul>
+</li>
+<li><a href="https://www.jianshu.com/p/19147a69e970" target="_blank" rel="noopener">Intent</a></li>
+<li><a href="https://www.jianshu.com/p/dedbae8ffca1" target="_blank" rel="noopener">Fragment</a></li>
+<li><a href="https://ishinagimoeta.github.io/2018/09/30/AndroidStrageWays/" target="_blank" rel="noopener">数据存储</a><ul>
+<li>SharedPreference</li>
+<li>Sqlite</li>
+<li>文件存储</li>
+<li>网络存储</li>
+</ul>
+</li>
+<li><a href="https://www.jianshu.com/p/3141d4e46240" target="_blank" rel="noopener">网络请求</a> </li>
+<li><a href="https://ishinagimoeta.github.io/2018/10/10/ViewDetailed/" target="_blank" rel="noopener">常用View与优化</a></li>
+<li><a href="https://juejin.im/post/5ae32bac518825671a638405" target="_blank" rel="noopener">Android屏幕适配</a>  </li>
+</ul>
+<p>如果学完了上面的基础，基本上开发一个简单的APP就没什么问题了，不过想要熟练应用，还需要多练习，多谷歌。可以随便找一个简单点的APP复刻一下，用自己的方式还原出市面上的简单APP。<br>或者自己有些想法的话，也可以自己做一个原创APP，不过我推荐大家最好去做一些和网络请求有关的APP，这里推荐一个有较多免费API的平台<a href="http://api.mob.com/#/" target="_blank" rel="noopener">MobAPI</a>。</p>
+<p><a href="https://github.com/Freelander/Android_Data" target="_blank" rel="noopener">Android资源推荐</a><br><a href="https://github.com/cctanfujun/android-tips-tricks-cn" target="_blank" rel="noopener">Android开发技巧</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Python</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">爬虫</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">总结</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/Python//" class="article-tag-list-link color2">Python</a>
+        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/09/29/AndroidTotalsink/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
-  
-  
-    </div></section>
-  
 
-    
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+  
+    <nav id="page-nav">
+      <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    </nav>
+  
 
 
           </div>
@@ -252,10 +333,10 @@
     <script>
 	var yiliaConfig = {
 		mathjax: true,
-		isHome: false,
+		isHome: true,
 		isPost: false,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,

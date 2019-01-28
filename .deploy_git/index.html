@@ -164,6 +164,115 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-arrayMapClassCastException" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/01/28/arrayMapClassCastException/">一个来自于ArrayMap的ClassCastException</a>
+    </h1>
+  
+
+        
+        <a href="/2019/01/28/arrayMapClassCastException/" class="archive-article-date">
+  	<time datetime="2019-01-28T02:01:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近一段时间比较忙，年关将至，公司突然蹦出来了各种各样的问题，脑壳疼。<br>这篇博客主要来记录一下最近遇到的一个比较奇葩的问题。一个关于ArrayMap的奇怪异常。  </p>
+<p>这个问题我们在开发和测试过程中一次都没有遇到过，真正抓住是在Bugly上发现的，上下文很奇怪，乍一看好像是一个布局问题，像是RelativeLayout的子View的new和remove冲突导致了这个异常。但是我们是在是找不到工程里面哪个地方有这种冲突，实在是找不到一丝头绪，最后还是通过面向Stack Overflow编程的方式来找到了这个问题的根本原因。  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm2uonbkbj20vh0mcwgn.jpg" alt="">  </p>
+<p>其实这个错误可能发生在任何使用ArrayMap的任何地方,比如Fragment,Intent,Bundle，由于Android Framework层中大量使用ArrayMap存储,所以就算你自己不使用也仍有可能遇到此问题。  </p>
+<p>目前已经确认是Android系统本身的一个Bug,相关issue可以参考：<br><a href="https://issuetracker.google.com/issues/37114373" target="_blank" rel="noopener">https://issuetracker.google.com/issues/37114373</a>  </p>
+<p>如果你无论如何都想要复现这个问题或者你想要知道引起BUG的最根本原因的话，可以看看这个：<br><a href="https://www.jianshu.com/p/02890898ee68" target="_blank" rel="noopener">https://www.jianshu.com/p/02890898ee68</a>  </p>
+<p>其实简单来说，就是ArrayMap是非线程安全的，如果同时在多个线程中调用ArrayMap，在一定量级的用户数基础下，这个bug很有可能会给你的bugly刷榜。  </p>
+<p>因为这是一个系统级的bug，google团队貌似在Android Pie版本中才对他修复，而据我所知目前我们的targetSDK版本基本集中在23~26之间，所以这个问题只能规避，或者你修改底层源码，但是由于我只是一个一般的APK开发者，对底层不熟，所以这里就不献丑了。  </p>
+<p>规避方法：<br>1、不要主动在子线程中调用ArrayMap，确保ArrayMap只出现在主线程中，就不会出现这个问题。  </p>
+<p>2、虽然你能管得住自己的代码，但是你管不住三方SDK的，我们这个问题就是出在了友盟分享模块上。所以针对这种情况，我们首先要定位问题出现的原因。这里有个AS的黑科技可以教大家一下。 </p>
+<p>首先找到问题出现的位置，在该处断点，右键断点，调出该弹窗。</p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3iezbkjj20ue0ktq58.jpg" alt="">  </p>
+<p>然后在condition中填入你想要打印的数据，我这里主要是想看看有多少线程调用了ArrayMap,所以打印的是线程信息。  </p>
+<blockquote>
+<p>Log.e(“######”,Thread.currentThread().toString())==0</p>
+</blockquote>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3ju4222j20bk085dfx.jpg" alt=""> </p>
+<p>然后开启Debug模式，查看打印  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3mxmik9j20nl0aegms.jpg" alt="">  </p>
+<p>emmm，看来问题就是出在这里了，有两个线程机会同时调用了ArrayMap，现在要追踪这个线程是什么东西调用的，3.2以下的AS可以使用DDMS中的Threads查看：<a href="https://www.jianshu.com/p/8fa300effa59" target="_blank" rel="noopener">android性能优化之DDMS中查看thread信息</a>，3.2以上的可以从Profiler中查看，还是比较方便的。</p>
+<p>然后剩下的就要看各位的需求来调整了，这个bug的触发概率其实比较低，所以如果不会导致特别的后果，一般可以不太用管，或者错开ArrayMap的多线程调用即可。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Exception</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/01/28/arrayMapClassCastException/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-serviceKeepAlive" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
   <div class="article-inner">
     
@@ -317,7 +426,7 @@
 </table>
 <p>（上表的数字可能在不同系统会有一定的出入）</p>
 <p>根据上面的adj值，其实系统在进程回收跟内存回收类似也是有一套严格的策略，可以自己去了解，大概是这个样子的，<strong>oom_adj越大，占用物理内存越多会被最先kill掉</strong>，OK，那么现在对于进程如何保活这个问题就转化成，如何降低oom_adj的值，以及如何使得我们应用占的内存最少。  </p>
-<h1 id="3、进程保活方案"><a href="#3、进程保活方案" class="headerlink" title="3、进程保活方案"></a>3、进程保活方案</h1><h2 id="1、开启一个像素的Activity"><a href="#1、开启一个像素的Activity" class="headerlink" title="1、开启一个像素的Activity"></a>1、开启一个像素的Activity</h2><p>基本思想，系统一般是不会杀死前台进程的。所以要使得进程常驻，我们只需要在锁屏的时候在本进程开启一个Activity，为了欺骗用户，让这个Activity的大小是1像素，并且透明无切换动画，在开屏幕的时候，把这个Activity关闭掉，所以这个就需要监听系统锁屏广播。  </p>
+<h1 id="3、进程保活方案"><a href="#3、进程保活方案" class="headerlink" title="3、进程保活方案"></a>3、进程保活方案</h1><h2 id="1、开启1X1像素的Activity"><a href="#1、开启1X1像素的Activity" class="headerlink" title="1、开启1X1像素的Activity"></a>1、开启1X1像素的Activity</h2><p>基本思想，系统一般是不会杀死前台进程的。所以要使得进程常驻，我们只需要在锁屏的时候在本进程开启一个Activity，为了欺骗用户，让这个Activity的大小是1像素，并且透明无切换动画，在开屏幕的时候，把这个Activity关闭掉，所以这个就需要监听系统锁屏广播。  </p>
 <p>如果直接启动一个Activity，当我们按下back键返回桌面的时候，oom_adj的值是8，上面已经提到过，这个进程在资源不够的情况下是容易被回收的。现在造一个一个像素的Activity。  </p>
 <pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LiveActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>{
 
@@ -476,6 +585,195 @@
     }
 }
 </code></pre>
+<p>按下back之后，进行锁屏，现在oom_adj的值，为0，将进程的优先级提高了。  </p>
+<p>但是还有一个问题，内存也是一个考虑的因素，内存越多会被最先kill掉，所以把上面的业务逻辑放到Service中，而Service是在另外一个 进程中，在MainActivity开启这个服务就行了，这样这个进程就更加的轻量。</p>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LiveService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>{
+
+    <span class="function"><span class="keyword">public</span>  <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">toLiveService</span><span class="params">(Context pContext)</span></span>{
+        Intent intent=<span class="keyword">new</span> Intent(pContext,LiveService.class);
+        pContext.startService(intent);
+    }
+
+    <span class="meta">@Nullable</span>
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>{
+        <span class="keyword">return</span> <span class="keyword">null</span>;
+    }
+
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">onStartCommand</span><span class="params">(Intent intent, <span class="keyword">int</span> flags, <span class="keyword">int</span> startId)</span> </span>{
+        <span class="comment">//屏幕关闭的时候启动一个1像素的Activity，开屏的时候关闭Activity</span>
+        <span class="keyword">final</span> ScreenManager screenManager = ScreenManager.getInstance(LiveService.<span class="keyword">this</span>);
+        ScreenBroadcastListener listener = <span class="keyword">new</span> ScreenBroadcastListener(<span class="keyword">this</span>);
+        listener.registerListener(<span class="keyword">new</span> ScreenBroadcastListener.ScreenStateListener() {
+            <span class="meta">@Override</span>
+            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScreenOn</span><span class="params">()</span> </span>{
+                screenManager.finishActivity();
+            }
+            <span class="meta">@Override</span>
+            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScreenOff</span><span class="params">()</span> </span>{
+                screenManager.startActivity();
+            }
+        });
+        <span class="keyword">return</span> START_REDELIVER_INTENT;
+    }
+}
+</code></pre>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">service</span> <span class="attr">android:name</span>=<span class="string">".LiveService"</span> </span>
+<span class="tag">         <span class="attr">android:process</span>=<span class="string">":live_service"</span>/&gt;</span>
+</code></pre>
+<p>OK，通过上面的操作，我们的应用就始终和前台进程是一样的优先级了，为了省电，系统检测到锁屏事件后一段时间内会杀死后台进程，如果采取这种方案，就可以避免了这个问题。但是还是有被杀掉的可能，所以我们还需要做双进程守护，关于双进程守护，比较适合的就是aidl的那种方式，但是这个不是完全的靠谱，原理是A进程死的时候，B还在活着，B可以将A进程拉起来，反之，B进程死的时候，A还活着，A可以将B拉起来。所以双进程守护的前提是，系统杀进程只能一个个的去杀，如果一次性杀两个，这种方法也是不OK的。</p>
+<p>事实上<br>那么我们先来看看Android5.0以下的源码，ActivityManagerService是如何关闭在应用退出后清理内存的  </p>
+<pre><code>Process.killProcessQuiet(pid);
+</code></pre><p>应用退出后，ActivityManagerService就把主进程给杀死了，但是，在Android5.0以后，ActivityManagerService却是这样处理的：  </p>
+<pre><code>Process.killProcessQuiet(app.pid);  
+Process.killProcessGroup(app.info.uid, app.pid);  
+</code></pre><p>在应用退出后，ActivityManagerService不仅把主进程给杀死，另外把主进程所属的进程组一并杀死，这样一来，由于子进程和主进程在同一进程组，子进程在做的事情，也就停止了。所以在Android5.0以后的手机应用在进程被杀死后，要采用其他方案。  </p>
+<h2 id="2、前台服务"><a href="#2、前台服务" class="headerlink" title="2、前台服务"></a>2、前台服务</h2><p>这是最常见的一种方式，据说曾经微信也是使用这种方式来进程保活的。这个方案实际上是利用了Android的前台service的漏洞实现的。  </p>
+<p>原理如下：  </p>
+<p>对于 API level &lt; 18 ：调用startForeground(ID， new Notification())，发送空的Notification ，图标则不会显示。<br>对于 API level &gt;= 18：在需要提优先级的service A启动一个InnerService，两个服务同时startForeground，且绑定同样的 ID。Stop 掉InnerService ，这样通知栏图标即被移除。  </p>
+<pre><code class="java">
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">KeepLiveService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>{
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> NOTIFICATION_ID=<span class="number">0x11</span>;
+
+    <span class="function"><span class="keyword">public</span> <span class="title">KeepLiveService</span><span class="params">()</span> </span>{
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>{
+        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException(<span class="string">"Not yet implemented"</span>);
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>{
+        <span class="keyword">super</span>.onCreate();
+         <span class="comment">//API 18以下，直接发送Notification并将其置为前台</span>
+        <span class="keyword">if</span> (Build.VERSION.SDK_INT &lt;Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            startForeground(NOTIFICATION_ID, <span class="keyword">new</span> Notification());
+        } <span class="keyword">else</span> {
+            <span class="comment">//API 18以上，发送Notification并将其置为前台后，启动InnerService</span>
+            Notification.Builder builder = <span class="keyword">new</span> Notification.Builder(<span class="keyword">this</span>);
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            startForeground(NOTIFICATION_ID, builder.build());
+            startService(<span class="keyword">new</span> Intent(<span class="keyword">this</span>, InnerService.class));
+        }
+    }
+
+    <span class="keyword">public</span>  <span class="class"><span class="keyword">class</span>  <span class="title">InnerService</span> <span class="keyword">extends</span> <span class="title">Service</span></span>{
+        <span class="meta">@Override</span>
+        <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>{
+            <span class="keyword">return</span> <span class="keyword">null</span>;
+        }
+        <span class="meta">@Override</span>
+        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>{
+            <span class="keyword">super</span>.onCreate();
+            <span class="comment">//发送与KeepLiveService中ID相同的Notification，然后将其取消并取消自己的前台显示</span>
+            Notification.Builder builder = <span class="keyword">new</span> Notification.Builder(<span class="keyword">this</span>);
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            startForeground(NOTIFICATION_ID, builder.build());
+            <span class="keyword">new</span> Handler().postDelayed(<span class="keyword">new</span> Runnable() {
+                <span class="meta">@Override</span>
+                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>{
+                    stopForeground(<span class="keyword">true</span>);
+                    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    manager.cancel(NOTIFICATION_ID);
+                    stopSelf();
+                }
+            },<span class="number">100</span>);
+
+        }
+    }
+}
+
+</code></pre>
+<p>在没有采取前台服务之前，启动应用，oom_adj值是0，按下返回键之后，变成9（不同ROM可能不一样） </p>
+<p>在采取前台服务之后，启动应用，oom_adj值是0，按下返回键之后，变成2（不同ROM可能不一样），确实进程的优先级有所提高。  </p>
+<h2 id="3、相互唤醒"><a href="#3、相互唤醒" class="headerlink" title="3、相互唤醒"></a>3、相互唤醒</h2><p>对于热门的APP，大多存在互相关联的情况，比如说，你装了支付宝，支付宝存在监听支付的服务，然后你手机中的其他APP调用了阿里提供的支付SDK，那么你在使用集成了阿里支付SDK的应用时，就有可能会直接唤醒你的支付宝支付服务。这在大厂商应用之中广泛存在。  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhv2zovk2j20ar0hfjvw.jpg" alt=""></p>
+<p>此外，开机，网络切换、拍照、拍视频时候，利用系统产生的广播也能唤醒app，不过Android N已经将这三种广播取消了。  </p>
+<p>如果应用想保活，要是QQ，微信愿意救你也行，有多少手机上没有QQ，微信呢？或者像友盟，信鸽这种推送SDK，也存在唤醒app的功能。  </p>
+<h2 id="4、JobSheduler"><a href="#4、JobSheduler" class="headerlink" title="4、JobSheduler"></a>4、JobSheduler</h2><p>Android 5.0系统以前，为了应用的保活，存在使用Native拉活的方式，这种方式的最大弊端就是电量消耗过大。Native进程费电的原因是感知主进程是否存活有两种实现方式，在Native进程中通过死循环或定时器，轮训判断主进程是否存活，当主进程不存活时进行拉活。  </p>
+<p>Google为了优化Android系统，提高使用流畅度以及延长电池续航，加入了在应用后台/锁屏时，系统会回收应用，同时自动销毁应用拉起的Service的机制。同时为了满足在特定条件下需要执行某些任务的需求，google在全新一代操作系统上，采取了Job （jobservice &amp; JobInfo）的方式，即每个需要后台的业务处理为一个job，通过系统管理job，来提高资源的利用率，从而提高性能，节省电源。这样又能满足APP开发商的要求，又能满足系统性能的要求。Jobscheduler由此应运而生。JobSheduler完全可以替代在Android5.0以上native进程方式，这种方式即使用户强制关闭，也能被拉起。   </p>
+<pre><code class="java">JobSheduler<span class="meta">@TargetApi</span>(Build.VERSION_CODES.LOLLIPOP)
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyJobService</span> <span class="keyword">extends</span> <span class="title">JobService</span> </span>{
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>{
+        <span class="keyword">super</span>.onCreate();
+        startJobSheduler();
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startJobSheduler</span><span class="params">()</span> </span>{
+        <span class="keyword">try</span> {
+            JobInfo.Builder builder = <span class="keyword">new</span> JobInfo.Builder(<span class="number">1</span>, <span class="keyword">new</span> ComponentName(getPackageName(), MyJobService.class.getName()));
+            builder.setPeriodic(<span class="number">5</span>);
+            builder.setPersisted(<span class="keyword">true</span>);
+            JobScheduler jobScheduler = (JobScheduler) <span class="keyword">this</span>.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            jobScheduler.schedule(builder.build());
+        } <span class="keyword">catch</span> (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onStartJob</span><span class="params">(JobParameters jobParameters)</span> </span>{
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onStopJob</span><span class="params">(JobParameters jobParameters)</span> </span>{
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+}
+</code></pre>
+<h2 id="5、粘性服务-amp-与系统服务捆绑"><a href="#5、粘性服务-amp-与系统服务捆绑" class="headerlink" title="5、粘性服务&amp;与系统服务捆绑"></a>5、粘性服务&amp;与系统服务捆绑</h2><p>这个是系统自带的，onStartCommand方法必须具有一个整形的返回值，这个整形的返回值用来告诉系统在服务启动完毕后，如果被Kill，系统将如何操作，这种方案虽然可以，但是在某些情况or某些定制ROM上可能失效，我认为可以多做一种保守方案。  </p>
+<pre><code class="java"><span class="meta">@Override</span>
+<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">onStartCommand</span><span class="params">(Intent intent, <span class="keyword">int</span> flags, <span class="keyword">int</span> startId)</span> </span>{
+    <span class="keyword">return</span> START_REDELIVER_INTENT;
+}
+</code></pre>
+<ul>
+<li><p>START_STICKY<br>如果系统在onStartCommand返回后被销毁，系统将会重新创建服务并依次调用onCreate和onStartCommand（注意：根据测试Android2.3.3以下版本只会调用onCreate根本不会调用onStartCommand，Android4.0可以办到），这种相当于服务又重新启动恢复到之前的状态了）。</p>
+</li>
+<li><p>START_NOT_STICKY<br>如果系统在onStartCommand返回后被销毁，如果返回该值，则在执行完onStartCommand方法后如果Service被杀掉系统将不会重启该服务。</p>
+</li>
+<li><p>START_REDELIVER_INTENT<br>START_STICKY的兼容版本，不同的是其不保证服务被杀后一定能重启。  </p>
+</li>
+</ul>
+<p>相比与粘性服务与系统服务捆绑更厉害一点，这个来自<a href="https://blog.csdn.net/aigestudio/article/details/51348408" target="_blank" rel="noopener">爱哥</a>的研究，这里说的系统服务很好理解，比如NotificationListenerService，NotificationListenerService就是一个监听通知的服务，只要手机收到了通知，NotificationListenerService都能监听到，即时用户把进程杀死，也能重启，所以说要是把这个服务放到我们的进程之中，那么就可以呵呵了。  </p>
+<pre><code class="java"><span class="meta">@TargetApi</span>(Build.VERSION_CODES.JELLY_BEAN_MR2)
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LiveService</span> <span class="keyword">extends</span> <span class="title">NotificationListenerService</span> </span>{
+
+    <span class="function"><span class="keyword">public</span> <span class="title">LiveService</span><span class="params">()</span> </span>{
+
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNotificationPosted</span><span class="params">(StatusBarNotification sbn)</span> </span>{
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNotificationRemoved</span><span class="params">(StatusBarNotification sbn)</span> </span>{
+    }
+}
+</code></pre>
+<p>但是这种方式需要权限</p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">service</span></span>
+<span class="tag">    <span class="attr">android:name</span>=<span class="string">".LiveService"</span></span>
+<span class="tag">    <span class="attr">android:permission</span>=<span class="string">"android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"</span>&gt;</span>
+    <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span>
+        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.service.notification.NotificationListenerService"</span> /&gt;</span>
+    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span>
+<span class="tag">&lt;/<span class="name">service</span>&gt;</span>
+</code></pre>
+<p>所以你的应用要是有消息推送的话，那么可以用这种方式去欺骗用户。  </p>
+<p>在国内各大ROM”欣欣向荣”的大背景下，关于进程保活，不加入白名单，我也很想知道有没有一个应用永活的方案，这种方案性能好，不费电，或许做不到，或许有牛人可以，但是，通过上面几种措施，在绝大部分的机型下，绝大部分用户手机中，我们的进程寿命确实得到了提高,这篇文章都是围绕怎么去提高进程oom_adj的值来进行，关于降低内存占用方面，那又是另一个故事了。</p>
+<p>参考链接：</p>
+<p><a href="https://juejin.im/entry/58acf391ac502e007e9a0a11" target="_blank" rel="noopener">Android 进程保活的一般套路</a></p>
+<p><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2016/0418/4158.html" target="_blank" rel="noopener">关于 Android 进程保活，你所需要知道的一切</a></p>
+<p><a href="https://blog.csdn.net/aigestudio/article/details/51348408" target="_blank" rel="noopener">论Android应用进程长存的可行性</a></p>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzI0MjE3OTYwMg==&amp;mid=401629367&amp;idx=1&amp;sn=9f086cfdc00f954e21e6a6253f1ae288&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">Android 通过JNI实现守护进程，使Service服务不被杀死</a></p>
 
       
 
@@ -1738,149 +2036,10 @@ keyguardLock.disableKeyguard();
 
 
   
-    <article id="post-AndroidTotalsink" class="article article-type-post  article-index" itemscope="" itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/09/29/AndroidTotalsink/">我的Android学习路径</a>
-    </h1>
-  
-
-        
-        <a href="/2018/09/29/AndroidTotalsink/" class="archive-article-date">
-  	<time datetime="2018-09-29T07:23:45.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-09-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这篇博客主要是为了总结自己在学习Android过程中得到的经验，同时也算是自己对自己学习的知识的一个系统化梳理，因为博主的技术能力有限，而且时常脑抽，如果这篇文章能够帮到什么人的话，那我要提醒你小心文章中的坑23333。</p>
-<h1 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h1><hr>
-<p>本篇文章所说的Android开发大部分为<strong>应用层</strong>所涉及到的知识，关于Android系统全貌，由于博主也没有研究透彻，所以也没法系统性的整理，但是文中可能会出现一些底层知识。<br>本文主要涉及的是下图中Application的知识，同时可能会含有一些博主对Framework层的理解。<br><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fvqjji5kh4j20k70go131.jpg" alt=""></p>
-<p>如果有读者对Android全貌有兴趣，所以这里推荐一篇博主认为写的比较详细的说明Android系统的文章<br><a href="http://gityuan.com/android/#syscall--jni" title="http://gityuan.com/android/#syscall--jni" target="_blank" rel="noopener">Android系统开篇</a>  </p>
-<h1 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h1><hr>
-<p>工欲善其事，必先利其器  </p>
-<h2 id="一、硬件"><a href="#一、硬件" class="headerlink" title="一、硬件"></a>一、硬件</h2><ul>
-<li><strong>电脑</strong>：没有推荐<br>博主从入门到现在一直使用的是Windows系统开发，Mac系统虽然用过，但是一段时间后又换回来了。并不是说Mac系统不好，但是博主除了Android之外，还喜欢捣鼓一些其他的黑科技，收集一些看似能够提升效率的工具，Mac在这个上面相比Windows有些劣势，但是不得不说，Mac的开发效率是真的高，Google的员工都在用Mac。不过这个主要是看人吧，毕竟真正的程序员网吧也能敲代码，就和真正的作家网吧也能码字一样。  </li>
-<li><strong>测试用手机</strong>：有条件的强烈推荐小米<br>Android开发必然会需要调试自己开发的程序，在入门的时候，可以使用模拟器啥的（也推荐一下模拟器好了<a href="https://juejin.im/post/5aec3fa96fb9a07aca7a0961" title="Genymotion" target="_blank" rel="noopener">Genymotion</a>），但是开发的越久…..<br>各位，模拟器的能力是有极限的<br>我从短暂的开发过程当中学到一件事……<br>越是各种测试,就越会发现模拟器的能力是有极限的……<br>除非超越模拟器。<br>所以这里我推荐大家有条件的买个真机，几百块的就行，Android系统最好是6.0的，这个涉及到版本适配问题，之后会详细说明。<br>还有就是博主是米粉，不是其他原因，单纯的是因为在开发过程中，遇到过各种机型适配问题后发现，国产机中，VO两家问题最多，华为其次，小米最少。(顺便三星是真的垃圾，三星的拍照接口和大家都不一样，问题很多。  </li>
-</ul>
-<h2 id="二、开发环境"><a href="#二、开发环境" class="headerlink" title="二、开发环境"></a>二、开发环境</h2><p>主流的Android开发环境主要有三种  </p>
-<ul>
-<li>Android Studio<br>Android Studio(以下简称AS)，AS是Google推出，专门为Android“量身订做”的，是Google大力支持的一款基于IntelliJ idea改造的IDE，google的工程师团队一直在不断完善，现在AS相比其他Android开发软件（Eclipse我并不是针对你，我只是想说：）具有的优点有：速度更快，更加智能，整合了Gradle，具有强大的UI编辑器，内置终端模拟器，海量第三方插件，完美整合各个版本控制，本身UI更美观。  </li>
-<li>Eclipse+ADT：<br>先说明一点，Android团队已经停止了对Eclipse的ADT的更新，现在ADT的更新是由Eclipse团队完成的，所以，你如果使用Eclipse开发的话，没法第一时间体验最新Android版本，同时Eclipse会逐渐被淘汰，不过现在任有一定数量的公司在使用Eclipse开发。</li>
-<li>IntelliJ IDEA：<br>虽然说AS是基于IntelliJ idea改造的，但是现在AS和IntelliJ idea在Android开发上可以说是天差地别，AS是专门针对Android开发的IDE，而IntelliJ idea属于多语言开发的IDE。Google团队将NDK(Native development kit)从Android Support Plugin中抽出了，如果使用IntelliJ idea则无法使用NDK。并且之后可能会出现更多的工具只能在AS中使用，而不能在其他应用中使用。  </li>
-</ul>
-<p>综上所述，力推Android Studio作为Android入门开发软件。  </p>
-<h2 id="三、翻墙"><a href="#三、翻墙" class="headerlink" title="三、翻墙"></a>三、翻墙</h2><p>国内的网络环境对Android开发及其不友好，谷歌被墙在门外，导致我们如果不翻墙的话，就根本没法获取官方提供的资源和文档，同时AS下载的也是墙外资源。<br>作为一名程序员，翻墙并习惯使用Google解决问题，会发现一个新世界。<del>（面向 Google/Stack Overflow 编程）</del><br>这里推荐使用Shadowsocks/ShadowsocksR来翻墙，教程如下 <a href="https://www.textarea.com/ExpectoPatronum/shiyong-shadowsocks-kexue-shangwang-265/" title="使用shadowsocks科学上网" target="_blank" rel="noopener">使用shadowsocks科学上网</a> ，这个教程中需要花钱的地方只有买服务器，自建翻墙服务，如果懒得去自建服务器的话，可以使用Shadowsocks自带的免费服务器爬墙，也可以选择购买Shadowsocks的付费服务，几百块钱换一年可以翻墙的机会，绝对不亏。   </p>
-<h1 id="Google官方教程"><a href="#Google官方教程" class="headerlink" title="Google官方教程"></a>Google官方教程</h1><hr>
-<p><a href="https://developer.android.com/guide/" target="_blank" rel="noopener">谷歌官方教程</a><br><a href="http://hukai.me/android-training-course-in-chinese/index.html" target="_blank" rel="noopener">国内汉化教程</a><br>官方提供的东西虽然全面，但是因为Android系统本身比较复杂，所以刚入门的新手可能看起来反而比较迷茫，可以作为工具书来查阅，入门学习的话，并不是很推荐。  </p>
-<h1 id="Android基础知识"><a href="#Android基础知识" class="headerlink" title="Android基础知识"></a>Android基础知识</h1><hr>
-<p>以下会列出博主自己在学习过程中遇到的，认为比较好的其他博客  </p>
-<p>首先要致敬<strong>stormzhang</strong>大神的<a href="http://stormzhang.com/android/2014/07/07/learn-android-from-rookie/" target="_blank" rel="noopener">Android学习之路</a>。</p>
-<p>以下干货：  </p>
-<h2 id="零、语言基础"><a href="#零、语言基础" class="headerlink" title="零、语言基础"></a>零、语言基础</h2><p>目前Android开发最热门的语言是<strong>Java</strong>，同时Google团队也推出了<strong>kotlin</strong>，如果你是个想要在国内找一份用来谋生工作的，没有工作经验，没有JAVA经验的人。不要使用kotlin入门，就我所知，目前国内招Android开发的公司，90%使用的是Java作为开发语言<del>（而且就算你Android入门失败了，你还可以用Java去找工作）</del>。如果是想要提升自己，或者想要学点新知识来充电的话，kotlin其实是一个很不错的语言。<br>所以学好Java基础很重要  </p>
-<ul>
-<li>Java知识：<br>博主入门的参考书：<a href="https://book.douban.com/subject/3640322/" target="_blank" rel="noopener">大话Java</a>  </li>
-<li>Java设计模式：<br><a href="https://book.douban.com/subject/2334288/" target="_blank" rel="noopener">大话设计模式</a></li>
-</ul>
-<p>本文并不推荐直接买书，这两本书在网上资源已经流传了很久了，大家可以下载看看，等有能力之后可以再补票，如果你比较习惯看实体书，那直接买也无所谓，反正这两本书都很经典，值得购买。</p>
-<h2 id="一、Android基本知识"><a href="#一、Android基本知识" class="headerlink" title="一、Android基本知识"></a>一、Android基本知识</h2><p>写给出工具贴，本帖只用来查找你在阅读下文中遇到的不理解的知识点的扩展，还有对博主说的不完全的知识点的补充。<a href="https://juejin.im/post/587dbaf9570c3522010e400e" target="_blank" rel="noopener">Android 知识梳理</a>  </p>
-<p>这里会列出Android开发的基本知识点，和对应博客   </p>
-<ul>
-<li><a href="https://www.cnblogs.com/bravestarrhu/archive/2012/05/02/2479461.html" target="_blank" rel="noopener">Android四大基本组件</a><ul>
-<li><a href="https://www.jianshu.com/p/d4d677727a0a" target="_blank" rel="noopener">Activity</a></li>
-<li><a href="https://www.jianshu.com/p/b44e2620167f" target="_blank" rel="noopener">Service</a></li>
-<li><a href="http://www.cnblogs.com/linjiqin/archive/2011/05/28/2061396.html" target="_blank" rel="noopener">Content Provider</a></li>
-<li><a href="https://www.jianshu.com/p/5459c653b34a" target="_blank" rel="noopener">Broadcast Receiver</a></li>
-</ul>
-</li>
-<li><a href="https://www.jianshu.com/p/19147a69e970" target="_blank" rel="noopener">Intent</a></li>
-<li><a href="https://www.jianshu.com/p/dedbae8ffca1" target="_blank" rel="noopener">Fragment</a></li>
-<li><a href="https://ishinagimoeta.github.io/2018/09/30/AndroidStrageWays/" target="_blank" rel="noopener">数据存储</a><ul>
-<li>SharedPreference</li>
-<li>Sqlite</li>
-<li>文件存储</li>
-<li>网络存储</li>
-</ul>
-</li>
-<li><a href="https://www.jianshu.com/p/3141d4e46240" target="_blank" rel="noopener">网络请求</a> </li>
-<li><a href="https://ishinagimoeta.github.io/2018/10/10/ViewDetailed/" target="_blank" rel="noopener">常用View与优化</a></li>
-<li><a href="https://juejin.im/post/5ae32bac518825671a638405" target="_blank" rel="noopener">Android屏幕适配</a>  </li>
-</ul>
-<p>如果学完了上面的基础，基本上开发一个简单的APP就没什么问题了，不过想要熟练应用，还需要多练习，多谷歌。可以随便找一个简单点的APP复刻一下，用自己的方式还原出市面上的简单APP。<br>或者自己有些想法的话，也可以自己做一个原创APP，不过我推荐大家最好去做一些和网络请求有关的APP，这里推荐一个有较多免费API的平台<a href="http://api.mob.com/#/" target="_blank" rel="noopener">MobAPI</a>。</p>
-<p><a href="https://github.com/Freelander/Android_Data" target="_blank" rel="noopener">Android资源推荐</a><br><a href="https://github.com/cctanfujun/android-tips-tricks-cn" target="_blank" rel="noopener">Android开发技巧</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">总结</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/09/29/AndroidTotalsink/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    </nav>
   
 
 
@@ -1891,7 +2050,7 @@ keyguardLock.disableKeyguard();
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2018 IshinagiMoeta
+    		&copy; 2019 IshinagiMoeta
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -1991,11 +2150,15 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">总结</a>
+                <a href="javascript:void(0)" class="js-tag color3">适配</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">适配</a>
+                <a href="javascript:void(0)" class="js-tag color5">Exception</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">总结</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2007,7 +2170,7 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Service</a>
+                <a href="javascript:void(0)" class="js-tag color5">Android-P</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -2015,15 +2178,15 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-P</a>
+                <a href="javascript:void(0)" class="js-tag color3">权限</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Service</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">锁屏</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">权限</a>
               </li>
             
             <div class="clearfix"></div>

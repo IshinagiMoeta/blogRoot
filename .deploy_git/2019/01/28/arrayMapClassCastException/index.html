@@ -6,19 +6,25 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Tag: 爬虫 | Mika日常</title>
+  <title>一个来自于ArrayMap的ClassCastException | Mika日常</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="记录咪咔咔和她的哥哥姐姐的日常">
-<meta name="keywords" content="猫;Android">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Mika日常">
-<meta property="og:url" content="http://yoursite.com/tags/爬虫/index.html">
+  <meta name="description" content="最近一段时间比较忙，年关将至，公司突然蹦出来了各种各样的问题，脑壳疼。这篇博客主要来记录一下最近遇到的一个比较奇葩的问题。一个关于ArrayMap的奇怪异常。   这个问题我们在开发和测试过程中一次都没有遇到过，真正抓住是在Bugly上发现的，上下文很奇怪，乍一看好像是一个布局问题，像是RelativeLayout的子View的new和remove冲突导致了这个异常。但是我们是在是找不到工程里面哪">
+<meta name="keywords" content="Android,Exception">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一个来自于ArrayMap的ClassCastException">
+<meta property="og:url" content="http://yoursite.com/2019/01/28/arrayMapClassCastException/index.html">
 <meta property="og:site_name" content="Mika日常">
-<meta property="og:description" content="记录咪咔咔和她的哥哥姐姐的日常">
+<meta property="og:description" content="最近一段时间比较忙，年关将至，公司突然蹦出来了各种各样的问题，脑壳疼。这篇博客主要来记录一下最近遇到的一个比较奇葩的问题。一个关于ArrayMap的奇怪异常。   这个问题我们在开发和测试过程中一次都没有遇到过，真正抓住是在Bugly上发现的，上下文很奇怪，乍一看好像是一个布局问题，像是RelativeLayout的子View的new和remove冲突导致了这个异常。但是我们是在是找不到工程里面哪">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm2uonbkbj20vh0mcwgn.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3iezbkjj20ue0ktq58.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3ju4222j20bk085dfx.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3mxmik9j20nl0aegms.jpg">
+<meta property="og:updated_time" content="2019-01-28T02:59:42.856Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Mika日常">
-<meta name="twitter:description" content="记录咪咔咔和她的哥哥姐姐的日常">
+<meta name="twitter:title" content="一个来自于ArrayMap的ClassCastException">
+<meta name="twitter:description" content="最近一段时间比较忙，年关将至，公司突然蹦出来了各种各样的问题，脑壳疼。这篇博客主要来记录一下最近遇到的一个比较奇葩的问题。一个关于ArrayMap的奇怪异常。   这个问题我们在开发和测试过程中一次都没有遇到过，真正抓住是在Bugly上发现的，上下文很奇怪，乍一看好像是一个布局问题，像是RelativeLayout的子View的new和remove冲突导致了这个异常。但是我们是在是找不到工程里面哪">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm2uonbkbj20vh0mcwgn.jpg">
   
     <link rel="alternative" href="/atom.xml" title="Mika日常" type="application/atom+xml">
   
@@ -162,75 +168,212 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-arrayMapClassCastException" class="article article-type-post " itemscope="" itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/11/05/pythonScrapy/" class="archive-article-date">
-  	<time datetime="2018-11-05T02:47:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-11-05</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/11/05/pythonScrapy/">Python爬虫</a>
+    <h1 class="article-title" itemprop="name">
+      一个来自于ArrayMap的ClassCastException
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2019/01/28/arrayMapClassCastException/" class="archive-article-date">
+  	<time datetime="2019-01-28T02:01:52.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-01-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近一段时间比较忙，年关将至，公司突然蹦出来了各种各样的问题，脑壳疼。<br>这篇博客主要来记录一下最近遇到的一个比较奇葩的问题。一个关于ArrayMap的奇怪异常。  </p>
+<p>这个问题我们在开发和测试过程中一次都没有遇到过，真正抓住是在Bugly上发现的，上下文很奇怪，乍一看好像是一个布局问题，像是RelativeLayout的子View的new和remove冲突导致了这个异常。但是我们是在是找不到工程里面哪个地方有这种冲突，实在是找不到一丝头绪，最后还是通过面向Stack Overflow编程的方式来找到了这个问题的根本原因。  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm2uonbkbj20vh0mcwgn.jpg" alt="">  </p>
+<p>其实这个错误可能发生在任何使用ArrayMap的任何地方,比如Fragment,Intent,Bundle，由于Android Framework层中大量使用ArrayMap存储,所以就算你自己不使用也仍有可能遇到此问题。  </p>
+<p>目前已经确认是Android系统本身的一个Bug,相关issue可以参考：<br><a href="https://issuetracker.google.com/issues/37114373" target="_blank" rel="noopener">https://issuetracker.google.com/issues/37114373</a>  </p>
+<p>如果你无论如何都想要复现这个问题或者你想要知道引起BUG的最根本原因的话，可以看看这个：<br><a href="https://www.jianshu.com/p/02890898ee68" target="_blank" rel="noopener">https://www.jianshu.com/p/02890898ee68</a>  </p>
+<p>其实简单来说，就是ArrayMap是非线程安全的，如果同时在多个线程中调用ArrayMap，在一定量级的用户数基础下，这个bug很有可能会给你的bugly刷榜。  </p>
+<p>因为这是一个系统级的bug，google团队貌似在Android Pie版本中才对他修复，而据我所知目前我们的targetSDK版本基本集中在23~26之间，所以这个问题只能规避，或者你修改底层源码，但是由于我只是一个一般的APK开发者，对底层不熟，所以这里就不献丑了。  </p>
+<p>规避方法：<br>1、不要主动在子线程中调用ArrayMap，确保ArrayMap只出现在主线程中，就不会出现这个问题。  </p>
+<p>2、虽然你能管得住自己的代码，但是你管不住三方SDK的，我们这个问题就是出在了友盟分享模块上。所以针对这种情况，我们首先要定位问题出现的原因。这里有个AS的黑科技可以教大家一下。 </p>
+<p>首先找到问题出现的位置，在该处断点，右键断点，调出该弹窗。</p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3iezbkjj20ue0ktq58.jpg" alt="">  </p>
+<p>然后在condition中填入你想要打印的数据，我这里主要是想看看有多少线程调用了ArrayMap,所以打印的是线程信息。  </p>
+<blockquote>
+<p>Log.e(“######”,Thread.currentThread().toString())==0</p>
+</blockquote>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3ju4222j20bk085dfx.jpg" alt=""> </p>
+<p>然后开启Debug模式，查看打印  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fzm3mxmik9j20nl0aegms.jpg" alt="">  </p>
+<p>emmm，看来问题就是出在这里了，有两个线程机会同时调用了ArrayMap，现在要追踪这个线程是什么东西调用的，3.2以下的AS可以使用DDMS中的Threads查看：<a href="https://www.jianshu.com/p/8fa300effa59" target="_blank" rel="noopener">android性能优化之DDMS中查看thread信息</a>，3.2以上的可以从Profiler中查看，还是比较方便的。</p>
+<p>然后剩下的就要看各位的需求来调整了，这个bug的触发概率其实比较低，所以如果不会导致特别的后果，一般可以不太用管，或者错开ArrayMap的多线程调用即可。</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>喜欢的话，请我喝杯咖啡吧<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fwzc0uio8cj209c092q3q.jpg">
+                      <span class="reward-type">支付宝</span>
+                    </div>
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fwzc0udzzbj2091092q3p.jpg">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Python</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Android</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">爬虫</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Exception</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/Python//" class="article-tag-list-link color2">Python</a>
+        			<a href="/categories/Android//" class="article-tag-list-link color3">Android</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/01/28/arrayMapClassCastException/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2018/12/24/serviceKeepAlive/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Android的Service保活</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -253,9 +396,9 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,

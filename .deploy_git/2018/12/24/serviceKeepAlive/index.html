@@ -18,7 +18,8 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpfvm1rzj20ux02kaa2.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhpl4tz9sj20yh05vwgc.jpg">
-<meta property="og:updated_time" content="2018-12-24T06:22:32.591Z">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhv2zovk2j20ar0hfjvw.jpg">
+<meta property="og:updated_time" content="2018-12-24T07:52:20.059Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android的Service保活">
 <meta name="twitter:description" content="在Android市场上，一直存在着一批批的软件，你即使在后台杀死，清理后台，也没法将他们彻底杀死，他们会用各种方式来给你发推送，通知，甚至突然跳出来一个界面。   这些应用都使用了不同的方式，却达到了相同的结果。在成为开发以前，我是很讨厌这种行为的，但是真正成为了一个Android开发，在满足公司需求的过程中，我了解到了这也是我们开发的一种无奈之举。  如果你要实现某种功能，需要常驻进程，或者需要">
@@ -319,7 +320,7 @@
 </table>
 <p>（上表的数字可能在不同系统会有一定的出入）</p>
 <p>根据上面的adj值，其实系统在进程回收跟内存回收类似也是有一套严格的策略，可以自己去了解，大概是这个样子的，<strong>oom_adj越大，占用物理内存越多会被最先kill掉</strong>，OK，那么现在对于进程如何保活这个问题就转化成，如何降低oom_adj的值，以及如何使得我们应用占的内存最少。  </p>
-<h1 id="3、进程保活方案"><a href="#3、进程保活方案" class="headerlink" title="3、进程保活方案"></a>3、进程保活方案</h1><h2 id="1、开启一个像素的Activity"><a href="#1、开启一个像素的Activity" class="headerlink" title="1、开启一个像素的Activity"></a>1、开启一个像素的Activity</h2><p>基本思想，系统一般是不会杀死前台进程的。所以要使得进程常驻，我们只需要在锁屏的时候在本进程开启一个Activity，为了欺骗用户，让这个Activity的大小是1像素，并且透明无切换动画，在开屏幕的时候，把这个Activity关闭掉，所以这个就需要监听系统锁屏广播。  </p>
+<h1 id="3、进程保活方案"><a href="#3、进程保活方案" class="headerlink" title="3、进程保活方案"></a>3、进程保活方案</h1><h2 id="1、开启1X1像素的Activity"><a href="#1、开启1X1像素的Activity" class="headerlink" title="1、开启1X1像素的Activity"></a>1、开启1X1像素的Activity</h2><p>基本思想，系统一般是不会杀死前台进程的。所以要使得进程常驻，我们只需要在锁屏的时候在本进程开启一个Activity，为了欺骗用户，让这个Activity的大小是1像素，并且透明无切换动画，在开屏幕的时候，把这个Activity关闭掉，所以这个就需要监听系统锁屏广播。  </p>
 <p>如果直接启动一个Activity，当我们按下back键返回桌面的时候，oom_adj的值是8，上面已经提到过，这个进程在资源不够的情况下是容易被回收的。现在造一个一个像素的Activity。  </p>
 <pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LiveActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>{
 
@@ -478,6 +479,195 @@
     }
 }
 </code></pre>
+<p>按下back之后，进行锁屏，现在oom_adj的值，为0，将进程的优先级提高了。  </p>
+<p>但是还有一个问题，内存也是一个考虑的因素，内存越多会被最先kill掉，所以把上面的业务逻辑放到Service中，而Service是在另外一个 进程中，在MainActivity开启这个服务就行了，这样这个进程就更加的轻量。</p>
+<pre><code class="java"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LiveService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>{
+
+    <span class="function"><span class="keyword">public</span>  <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">toLiveService</span><span class="params">(Context pContext)</span></span>{
+        Intent intent=<span class="keyword">new</span> Intent(pContext,LiveService.class);
+        pContext.startService(intent);
+    }
+
+    <span class="meta">@Nullable</span>
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>{
+        <span class="keyword">return</span> <span class="keyword">null</span>;
+    }
+
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">onStartCommand</span><span class="params">(Intent intent, <span class="keyword">int</span> flags, <span class="keyword">int</span> startId)</span> </span>{
+        <span class="comment">//屏幕关闭的时候启动一个1像素的Activity，开屏的时候关闭Activity</span>
+        <span class="keyword">final</span> ScreenManager screenManager = ScreenManager.getInstance(LiveService.<span class="keyword">this</span>);
+        ScreenBroadcastListener listener = <span class="keyword">new</span> ScreenBroadcastListener(<span class="keyword">this</span>);
+        listener.registerListener(<span class="keyword">new</span> ScreenBroadcastListener.ScreenStateListener() {
+            <span class="meta">@Override</span>
+            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScreenOn</span><span class="params">()</span> </span>{
+                screenManager.finishActivity();
+            }
+            <span class="meta">@Override</span>
+            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onScreenOff</span><span class="params">()</span> </span>{
+                screenManager.startActivity();
+            }
+        });
+        <span class="keyword">return</span> START_REDELIVER_INTENT;
+    }
+}
+</code></pre>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">service</span> <span class="attr">android:name</span>=<span class="string">".LiveService"</span> </span>
+<span class="tag">         <span class="attr">android:process</span>=<span class="string">":live_service"</span>/&gt;</span>
+</code></pre>
+<p>OK，通过上面的操作，我们的应用就始终和前台进程是一样的优先级了，为了省电，系统检测到锁屏事件后一段时间内会杀死后台进程，如果采取这种方案，就可以避免了这个问题。但是还是有被杀掉的可能，所以我们还需要做双进程守护，关于双进程守护，比较适合的就是aidl的那种方式，但是这个不是完全的靠谱，原理是A进程死的时候，B还在活着，B可以将A进程拉起来，反之，B进程死的时候，A还活着，A可以将B拉起来。所以双进程守护的前提是，系统杀进程只能一个个的去杀，如果一次性杀两个，这种方法也是不OK的。</p>
+<p>事实上<br>那么我们先来看看Android5.0以下的源码，ActivityManagerService是如何关闭在应用退出后清理内存的  </p>
+<pre><code>Process.killProcessQuiet(pid);
+</code></pre><p>应用退出后，ActivityManagerService就把主进程给杀死了，但是，在Android5.0以后，ActivityManagerService却是这样处理的：  </p>
+<pre><code>Process.killProcessQuiet(app.pid);  
+Process.killProcessGroup(app.info.uid, app.pid);  
+</code></pre><p>在应用退出后，ActivityManagerService不仅把主进程给杀死，另外把主进程所属的进程组一并杀死，这样一来，由于子进程和主进程在同一进程组，子进程在做的事情，也就停止了。所以在Android5.0以后的手机应用在进程被杀死后，要采用其他方案。  </p>
+<h2 id="2、前台服务"><a href="#2、前台服务" class="headerlink" title="2、前台服务"></a>2、前台服务</h2><p>这是最常见的一种方式，据说曾经微信也是使用这种方式来进程保活的。这个方案实际上是利用了Android的前台service的漏洞实现的。  </p>
+<p>原理如下：  </p>
+<p>对于 API level &lt; 18 ：调用startForeground(ID， new Notification())，发送空的Notification ，图标则不会显示。<br>对于 API level &gt;= 18：在需要提优先级的service A启动一个InnerService，两个服务同时startForeground，且绑定同样的 ID。Stop 掉InnerService ，这样通知栏图标即被移除。  </p>
+<pre><code class="java">
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">KeepLiveService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>{
+
+    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> NOTIFICATION_ID=<span class="number">0x11</span>;
+
+    <span class="function"><span class="keyword">public</span> <span class="title">KeepLiveService</span><span class="params">()</span> </span>{
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>{
+        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException(<span class="string">"Not yet implemented"</span>);
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>{
+        <span class="keyword">super</span>.onCreate();
+         <span class="comment">//API 18以下，直接发送Notification并将其置为前台</span>
+        <span class="keyword">if</span> (Build.VERSION.SDK_INT &lt;Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            startForeground(NOTIFICATION_ID, <span class="keyword">new</span> Notification());
+        } <span class="keyword">else</span> {
+            <span class="comment">//API 18以上，发送Notification并将其置为前台后，启动InnerService</span>
+            Notification.Builder builder = <span class="keyword">new</span> Notification.Builder(<span class="keyword">this</span>);
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            startForeground(NOTIFICATION_ID, builder.build());
+            startService(<span class="keyword">new</span> Intent(<span class="keyword">this</span>, InnerService.class));
+        }
+    }
+
+    <span class="keyword">public</span>  <span class="class"><span class="keyword">class</span>  <span class="title">InnerService</span> <span class="keyword">extends</span> <span class="title">Service</span></span>{
+        <span class="meta">@Override</span>
+        <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>{
+            <span class="keyword">return</span> <span class="keyword">null</span>;
+        }
+        <span class="meta">@Override</span>
+        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>{
+            <span class="keyword">super</span>.onCreate();
+            <span class="comment">//发送与KeepLiveService中ID相同的Notification，然后将其取消并取消自己的前台显示</span>
+            Notification.Builder builder = <span class="keyword">new</span> Notification.Builder(<span class="keyword">this</span>);
+            builder.setSmallIcon(R.mipmap.ic_launcher);
+            startForeground(NOTIFICATION_ID, builder.build());
+            <span class="keyword">new</span> Handler().postDelayed(<span class="keyword">new</span> Runnable() {
+                <span class="meta">@Override</span>
+                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>{
+                    stopForeground(<span class="keyword">true</span>);
+                    NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    manager.cancel(NOTIFICATION_ID);
+                    stopSelf();
+                }
+            },<span class="number">100</span>);
+
+        }
+    }
+}
+
+</code></pre>
+<p>在没有采取前台服务之前，启动应用，oom_adj值是0，按下返回键之后，变成9（不同ROM可能不一样） </p>
+<p>在采取前台服务之后，启动应用，oom_adj值是0，按下返回键之后，变成2（不同ROM可能不一样），确实进程的优先级有所提高。  </p>
+<h2 id="3、相互唤醒"><a href="#3、相互唤醒" class="headerlink" title="3、相互唤醒"></a>3、相互唤醒</h2><p>对于热门的APP，大多存在互相关联的情况，比如说，你装了支付宝，支付宝存在监听支付的服务，然后你手机中的其他APP调用了阿里提供的支付SDK，那么你在使用集成了阿里支付SDK的应用时，就有可能会直接唤醒你的支付宝支付服务。这在大厂商应用之中广泛存在。  </p>
+<p><img src="https://ws1.sinaimg.cn/large/6bbf23f6gy1fyhv2zovk2j20ar0hfjvw.jpg" alt=""></p>
+<p>此外，开机，网络切换、拍照、拍视频时候，利用系统产生的广播也能唤醒app，不过Android N已经将这三种广播取消了。  </p>
+<p>如果应用想保活，要是QQ，微信愿意救你也行，有多少手机上没有QQ，微信呢？或者像友盟，信鸽这种推送SDK，也存在唤醒app的功能。  </p>
+<h2 id="4、JobSheduler"><a href="#4、JobSheduler" class="headerlink" title="4、JobSheduler"></a>4、JobSheduler</h2><p>Android 5.0系统以前，为了应用的保活，存在使用Native拉活的方式，这种方式的最大弊端就是电量消耗过大。Native进程费电的原因是感知主进程是否存活有两种实现方式，在Native进程中通过死循环或定时器，轮训判断主进程是否存活，当主进程不存活时进行拉活。  </p>
+<p>Google为了优化Android系统，提高使用流畅度以及延长电池续航，加入了在应用后台/锁屏时，系统会回收应用，同时自动销毁应用拉起的Service的机制。同时为了满足在特定条件下需要执行某些任务的需求，google在全新一代操作系统上，采取了Job （jobservice &amp; JobInfo）的方式，即每个需要后台的业务处理为一个job，通过系统管理job，来提高资源的利用率，从而提高性能，节省电源。这样又能满足APP开发商的要求，又能满足系统性能的要求。Jobscheduler由此应运而生。JobSheduler完全可以替代在Android5.0以上native进程方式，这种方式即使用户强制关闭，也能被拉起。   </p>
+<pre><code class="java">JobSheduler<span class="meta">@TargetApi</span>(Build.VERSION_CODES.LOLLIPOP)
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyJobService</span> <span class="keyword">extends</span> <span class="title">JobService</span> </span>{
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>{
+        <span class="keyword">super</span>.onCreate();
+        startJobSheduler();
+    }
+
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">startJobSheduler</span><span class="params">()</span> </span>{
+        <span class="keyword">try</span> {
+            JobInfo.Builder builder = <span class="keyword">new</span> JobInfo.Builder(<span class="number">1</span>, <span class="keyword">new</span> ComponentName(getPackageName(), MyJobService.class.getName()));
+            builder.setPeriodic(<span class="number">5</span>);
+            builder.setPersisted(<span class="keyword">true</span>);
+            JobScheduler jobScheduler = (JobScheduler) <span class="keyword">this</span>.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            jobScheduler.schedule(builder.build());
+        } <span class="keyword">catch</span> (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onStartJob</span><span class="params">(JobParameters jobParameters)</span> </span>{
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onStopJob</span><span class="params">(JobParameters jobParameters)</span> </span>{
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+}
+</code></pre>
+<h2 id="5、粘性服务-amp-与系统服务捆绑"><a href="#5、粘性服务-amp-与系统服务捆绑" class="headerlink" title="5、粘性服务&amp;与系统服务捆绑"></a>5、粘性服务&amp;与系统服务捆绑</h2><p>这个是系统自带的，onStartCommand方法必须具有一个整形的返回值，这个整形的返回值用来告诉系统在服务启动完毕后，如果被Kill，系统将如何操作，这种方案虽然可以，但是在某些情况or某些定制ROM上可能失效，我认为可以多做一种保守方案。  </p>
+<pre><code class="java"><span class="meta">@Override</span>
+<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">onStartCommand</span><span class="params">(Intent intent, <span class="keyword">int</span> flags, <span class="keyword">int</span> startId)</span> </span>{
+    <span class="keyword">return</span> START_REDELIVER_INTENT;
+}
+</code></pre>
+<ul>
+<li><p>START_STICKY<br>如果系统在onStartCommand返回后被销毁，系统将会重新创建服务并依次调用onCreate和onStartCommand（注意：根据测试Android2.3.3以下版本只会调用onCreate根本不会调用onStartCommand，Android4.0可以办到），这种相当于服务又重新启动恢复到之前的状态了）。</p>
+</li>
+<li><p>START_NOT_STICKY<br>如果系统在onStartCommand返回后被销毁，如果返回该值，则在执行完onStartCommand方法后如果Service被杀掉系统将不会重启该服务。</p>
+</li>
+<li><p>START_REDELIVER_INTENT<br>START_STICKY的兼容版本，不同的是其不保证服务被杀后一定能重启。  </p>
+</li>
+</ul>
+<p>相比与粘性服务与系统服务捆绑更厉害一点，这个来自<a href="https://blog.csdn.net/aigestudio/article/details/51348408" target="_blank" rel="noopener">爱哥</a>的研究，这里说的系统服务很好理解，比如NotificationListenerService，NotificationListenerService就是一个监听通知的服务，只要手机收到了通知，NotificationListenerService都能监听到，即时用户把进程杀死，也能重启，所以说要是把这个服务放到我们的进程之中，那么就可以呵呵了。  </p>
+<pre><code class="java"><span class="meta">@TargetApi</span>(Build.VERSION_CODES.JELLY_BEAN_MR2)
+<span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LiveService</span> <span class="keyword">extends</span> <span class="title">NotificationListenerService</span> </span>{
+
+    <span class="function"><span class="keyword">public</span> <span class="title">LiveService</span><span class="params">()</span> </span>{
+
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNotificationPosted</span><span class="params">(StatusBarNotification sbn)</span> </span>{
+    }
+
+    <span class="meta">@Override</span>
+    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNotificationRemoved</span><span class="params">(StatusBarNotification sbn)</span> </span>{
+    }
+}
+</code></pre>
+<p>但是这种方式需要权限</p>
+<pre><code class="xml"><span class="tag">&lt;<span class="name">service</span></span>
+<span class="tag">    <span class="attr">android:name</span>=<span class="string">".LiveService"</span></span>
+<span class="tag">    <span class="attr">android:permission</span>=<span class="string">"android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"</span>&gt;</span>
+    <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span>
+        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.service.notification.NotificationListenerService"</span> /&gt;</span>
+    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span>
+<span class="tag">&lt;/<span class="name">service</span>&gt;</span>
+</code></pre>
+<p>所以你的应用要是有消息推送的话，那么可以用这种方式去欺骗用户。  </p>
+<p>在国内各大ROM”欣欣向荣”的大背景下，关于进程保活，不加入白名单，我也很想知道有没有一个应用永活的方案，这种方案性能好，不费电，或许做不到，或许有牛人可以，但是，通过上面几种措施，在绝大部分的机型下，绝大部分用户手机中，我们的进程寿命确实得到了提高,这篇文章都是围绕怎么去提高进程oom_adj的值来进行，关于降低内存占用方面，那又是另一个故事了。</p>
+<p>参考链接：</p>
+<p><a href="https://juejin.im/entry/58acf391ac502e007e9a0a11" target="_blank" rel="noopener">Android 进程保活的一般套路</a></p>
+<p><a href="http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2016/0418/4158.html" target="_blank" rel="noopener">关于 Android 进程保活，你所需要知道的一切</a></p>
+<p><a href="https://blog.csdn.net/aigestudio/article/details/51348408" target="_blank" rel="noopener">论Android应用进程长存的可行性</a></p>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzI0MjE3OTYwMg==&amp;mid=401629367&amp;idx=1&amp;sn=9f086cfdc00f954e21e6a6253f1ae288&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">Android 通过JNI实现守护进程，使Service服务不被杀死</a></p>
 
       
 
@@ -607,6 +797,15 @@
   
 <nav id="article-nav">
   
+    <a href="/2019/01/28/arrayMapClassCastException/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          一个来自于ArrayMap的ClassCastException
+        
+      </div>
+    </a>
+  
   
     <a href="/2018/12/20/screenLockActivity/" id="article-nav-older" class="article-nav-link-wrap">
       <div class="article-nav-title">Android锁屏Activity实现</div>
@@ -652,7 +851,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2018 IshinagiMoeta
+    		&copy; 2019 IshinagiMoeta
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -752,11 +951,15 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">总结</a>
+                <a href="javascript:void(0)" class="js-tag color3">适配</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">适配</a>
+                <a href="javascript:void(0)" class="js-tag color5">Exception</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">总结</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -768,7 +971,7 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Service</a>
+                <a href="javascript:void(0)" class="js-tag color5">Android-P</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -776,15 +979,15 @@ MathJax.Hub.Queue(function() {
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Android-P</a>
+                <a href="javascript:void(0)" class="js-tag color3">权限</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">Service</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">锁屏</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">权限</a>
               </li>
             
             <div class="clearfix"></div>
